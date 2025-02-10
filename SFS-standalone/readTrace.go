@@ -30,7 +30,12 @@ func GetTrace(path string) ([]Action, int) {
 	for scanner.Scan() {
 		txtlines = append(txtlines, scanner.Text())
 	}
-	trace := []Action{}
+
+	return ParseTrace(txtlines)
+}
+
+func ParseTrace(traces []string) ([]Action, int) {
+	results := []Action{}
 	var s []string
 	var i int
 	// var j int
@@ -38,7 +43,7 @@ func GetTrace(path string) ([]Action, int) {
 	var id int
 	var newAction Action
 	var num int = 0
-	for _, eachline := range txtlines {
+	for _, eachline := range traces {
 		s = strings.Split(eachline, " ")
 		i, _ = strconv.Atoi(s[2])
 		// j, _ = strconv.Atoi(s[3])
@@ -46,8 +51,9 @@ func GetTrace(path string) ([]Action, int) {
 		id, _ = strconv.Atoi(s[4])
 		newAction = Action{s[0], s[1], i, f * 9, id}
 		// newAction = Action{s[0], s[1], i, j, f * 9, id}
-		trace = append(trace, newAction)
+		results = append(results, newAction)
 		num += 1
 	}
-	return trace, num
+
+	return results, num
 }

@@ -3,6 +3,10 @@ package main
 import (
 	// "encoding/json"
 	// "net/http"
+
+	"io"
+	"net/http"
+	"strings"
 	"sync"
 
 	//"fmt"
@@ -43,14 +47,34 @@ func main() {
 	flag.Parse()
 	// fmt.Println("logs main cpu", *cpu)
 	//flag.Usage()
-	if policy == "s" {
-		testSFS(*cpu, source)
-	} else if policy == "c" {
-		testCFS(*cpu, source)
-	} else if policy == "f" {
-		testFIFO(*cpu, source)
-	} else {
-		testSTCF(*cpu, source, optimal)
+
+	http.HandleFunc("/set_reqs", runFuncHandler(policy, *cpu))
+
+	fmt.Println("Starting server on :20251...")
+	err = http.ListenAndServe("0.0.0.0:20251", nil)
+	if err != nil {
+		fmt.Println("Error starting server:", err)
+	}
+}
+
+func runFuncHandler(policy string, cpu int) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+		trace, num := ParseTrace(strings.Split(string(body), "\n"))
+
+		if policy == "s" {
+			testSFSWithTraces(cpu, trace, num)
+		} else if policy == "c" {
+			testCFSWithTraces(cpu, trace, num)
+		} else if policy == "f" {
+			testFIFOWithTraces(cpu, trace, num)
+		} else {
+			panic("wrong policy")
+		}
 	}
 }
 
@@ -142,10 +166,15 @@ func testSFSWithTraces(cpu int, trace []Action, num int) {
 // }
 
 func testFIFO(cpu int, source string) {
+	trace, num := GetTrace(source)
+	// trace, _, _ := parseJSONData(source)
+	testFIFOWithTraces(cpu, trace, num)
+}
+
+func testFIFOWithTraces(cpu int, trace []Action, num int) {
 	start_time := time.Now()
 	wg := sync.WaitGroup{}
-	trace, _ := GetTrace(source)
-	// trace, _, _ := parseJSONData(source)
+
 	cache := make(chan PidI)
 	cpuC := GetFifoCpuSingleCpu(cpu)
 	wg.Add(len(trace))
@@ -165,10 +194,14 @@ func testFIFO(cpu int, source string) {
 }
 
 func testCFS(cpu int, source string) {
+	trace, num := GetTrace(source)
+	// trace, _, _ := parseJSONData(source)
+	testCFSWithTraces(cpu, trace, num)
+}
+
+func testCFSWithTraces(cpu int, trace []Action, num int) {
 	start_time := time.Now()
 	wg := sync.WaitGroup{}
-	trace, _ := GetTrace(source)
-	// trace, _, _ := parseJSONData(source)
 	cache := make(chan PidI)
 	//go scheduler(&wg,cache)
 	cpuC := GetCFSCpuCores(cpu)
