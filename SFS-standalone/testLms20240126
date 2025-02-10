@@ -1,0 +1,17 @@
+fib1 fib.py 20 0 1
+fib2 fib.py 20 0 2
+fib3 fib.py 32 0 3
+fib4 fib.py 32 0 4
+fib5 fib.py 35 0 5
+
+fib6 fib.py 35 0 6
+fib7 fib.py 20 0 7
+fib8 fib.py 20 0 8
+fib9 fib.py 32 0 9
+fib10 fib.py 32 0 10
+
+fib11 fib.py 35 0 11
+fib12 fib.py 35 0 12
+fib13 fib.py 20 0 13
+fib14 fib.py 32 0 14
+fib15 fib.py 35 0 15
