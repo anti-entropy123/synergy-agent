@@ -6,6 +6,7 @@ import (
 
 	"io"
 	"net/http"
+
 	"strings"
 	"sync"
 
@@ -17,6 +18,8 @@ import (
 	//"runtime"
 	//"runtime/debug"
 )
+
+var policy string
 
 func main() {
 	var rLimit syscall.Rlimit
@@ -36,10 +39,9 @@ func main() {
 		fmt.Println("Error Getting Rlimit ", err)
 	}
 	// fmt.Println("logs Rlimit Final", rLimit)
-	var policy string
-	flag.StringVar(&policy, "p", "m", "scheduling policys: m:SFS; c:CFS, s: SRTF")
-	var source string
-	flag.StringVar(&source, "t", "", "trace")
+	flag.StringVar(&policy, "p", "c", "scheduling policys: m:SFS; c:CFS, s: SRTF")
+	// var source string
+	// flag.StringVar(&source, "t", "", "trace")
 	var optimal string
 	flag.StringVar(&optimal, "o", "optimal.txt", "STCF optimal values")
 	cpu := flag.Int("n", 16, "# of cpu cores")
@@ -48,7 +50,8 @@ func main() {
 	// fmt.Println("logs main cpu", *cpu)
 	//flag.Usage()
 
-	http.HandleFunc("/set_reqs", runFuncHandler(policy, *cpu))
+	http.HandleFunc("/set_reqs", runFunc(*cpu))
+	http.HandleFunc("/change_policy", changePolicy)
 
 	fmt.Println("Starting server on :20251...")
 	err = http.ListenAndServe("0.0.0.0:20251", nil)
@@ -57,7 +60,32 @@ func main() {
 	}
 }
 
-func runFuncHandler(policy string, cpu int) func(http.ResponseWriter, *http.Request) {
+func changePolicy(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	content := string(body)
+
+	allowed := []string{"c", "f"}
+	new_policy := ""
+	for _, v := range allowed {
+		if content == v {
+			new_policy = v
+			break
+		}
+	}
+
+	if new_policy == "" {
+		http.Error(w, "wrong policy content", http.StatusInternalServerError)
+		return
+	}
+	fmt.Printf("old policy is %s, will change to %s\n", policy, new_policy)
+	policy = new_policy
+}
+
+func runFunc(cpu int) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
@@ -66,9 +94,7 @@ func runFuncHandler(policy string, cpu int) func(http.ResponseWriter, *http.Requ
 
 		trace, num := ParseTrace(strings.Split(string(body), "\n"))
 
-		if policy == "s" {
-			testSFSWithTraces(cpu, trace, num)
-		} else if policy == "c" {
+		if policy == "c" {
 			testCFSWithTraces(cpu, trace, num)
 		} else if policy == "f" {
 			testFIFOWithTraces(cpu, trace, num)
