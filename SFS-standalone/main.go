@@ -1,25 +1,23 @@
 package main
 
 import (
-	// "encoding/json"
-	// "net/http"
-
-	"io"
-	"net/http"
-
-	"strings"
-	"sync"
-
-	//"fmt"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
+	"net/http"
+	"strings"
+	"sync"
 	"syscall"
 	"time"
 	//"runtime"
 	//"runtime/debug"
 )
 
-var policy string
+var (
+	policy   string
+	affinity string
+)
 
 func main() {
 	var rLimit syscall.Rlimit
@@ -44,14 +42,18 @@ func main() {
 	// flag.StringVar(&source, "t", "", "trace")
 	var optimal string
 	flag.StringVar(&optimal, "o", "optimal.txt", "STCF optimal values")
-	cpu := flag.Int("n", 16, "# of cpu cores")
+	flag.StringVar(&affinity, "a", "0", "set CPU-affinity")
+	// cpu := flag.Int("n", 16, "# of cpu cores")
+	cpu := 1
 	// fmt.Println("logs main cpu", *cpu)
 	flag.Parse()
 	// fmt.Println("logs main cpu", *cpu)
 	//flag.Usage()
 
-	http.HandleFunc("/set_reqs", runFunc(*cpu))
+	http.HandleFunc("/set_reqs", runFunc(cpu))
 	http.HandleFunc("/change_policy", changePolicy)
+	go CollectMetrics()                    // 启动监控 Goroutine
+	http.HandleFunc("/get_status", status) // 注册 HTTP 端点
 
 	fmt.Println("Starting server on :20251...")
 	err = http.ListenAndServe("0.0.0.0:20251", nil)
@@ -60,29 +62,44 @@ func main() {
 	}
 }
 
+func status(w http.ResponseWriter, r *http.Request) {
+	Mutex.Lock()
+	defer Mutex.Unlock()
+
+	// 返回最近 10 条数据
+	n := 10
+	if len(StatusDataList) < n {
+		n = len(StatusDataList)
+	}
+	recentData := StatusDataList[len(StatusDataList)-n:]
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(recentData)
+}
+
 func changePolicy(w http.ResponseWriter, r *http.Request) {
-	body, err := io.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body) // 读取 HTTP 请求体
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	content := string(body)
+	content := string(body) // 请求体内容转为字符串
 
-	allowed := []string{"c", "f"}
+	allowed := []string{"c", "f"} // 允许的策略
 	new_policy := ""
 	for _, v := range allowed {
-		if content == v {
+		if content == v { // 检查是否是合法的策略
 			new_policy = v
 			break
 		}
 	}
 
-	if new_policy == "" {
+	if new_policy == "" { // 如果策略非法，返回错误
 		http.Error(w, "wrong policy content", http.StatusInternalServerError)
 		return
 	}
 	fmt.Printf("old policy is %s, will change to %s\n", policy, new_policy)
-	policy = new_policy
+	policy = new_policy // 更新调度策略
 }
 
 func runFunc(cpu int) func(http.ResponseWriter, *http.Request) {
@@ -92,14 +109,14 @@ func runFunc(cpu int) func(http.ResponseWriter, *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 
-		trace, num := ParseTrace(strings.Split(string(body), "\n"))
+		trace, num := ParseTrace(strings.Split(string(body), "\n")) // 解析任务请求
 
 		if policy == "c" {
-			testCFSWithTraces(cpu, trace, num)
+			testCFSWithTraces(cpu, trace, num) // 运行 CFS 调度
 		} else if policy == "f" {
-			testFIFOWithTraces(cpu, trace, num)
+			testFIFOWithTraces(cpu, trace, num) // 运行 FIFO 调度
 		} else {
-			panic("wrong policy")
+			panic("wrong policy") // 非法策略
 		}
 	}
 }
@@ -198,15 +215,15 @@ func testFIFO(cpu int, source string) {
 }
 
 func testFIFOWithTraces(cpu int, trace []Action, num int) {
-	start_time := time.Now()
+	start_time := time.Now() // 记录调度开始时间
 	wg := sync.WaitGroup{}
 
-	cache := make(chan PidI)
-	cpuC := GetFifoCpuSingleCpu(cpu)
-	wg.Add(len(trace))
+	cache := make(chan PidI)         // 用于存储任务的通道
+	// cpuC := GetFifoCpuSingleCpu(cpu) // 获取 FIFO CPU 配置
+	wg.Add(len(trace))               // 等待所有任务完成
 	for _, v := range trace {
 		// wg.Add(1) //每个任务都是依次并发执行的。
-		ExecuteNoChannel(&wg, v, "F", cache, start_time, cpuC)
+		ExecuteNoChannel(&wg, v, "F", cache, start_time, affinity) // 执行任务
 	}
 	// wg.Wait()
 
@@ -230,10 +247,10 @@ func testCFSWithTraces(cpu int, trace []Action, num int) {
 	wg := sync.WaitGroup{}
 	cache := make(chan PidI)
 	//go scheduler(&wg,cache)
-	cpuC := GetCFSCpuCores(cpu)
+	// cpuC := GetCFSCpuCores(cpu) // 获取 CFS CPU 配置
 	wg.Add(len(trace))
 	for i := 0; i < len(trace); i++ {
-		ExecuteNoChannel(&wg, trace[i], "N", cache, start_time, cpuC)
+		ExecuteNoChannel(&wg, trace[i], "N", cache, start_time, affinity)
 	}
 
 	//从通道中按顺序读取任务结果

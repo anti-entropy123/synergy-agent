@@ -91,6 +91,7 @@ func ExecuteNoChannel(wg *sync.WaitGroup, job Action, p string, pids chan PidI, 
 	//time.Sleep(time.Duration(job.Start) * time.Millisecond)
 	t1 := time.Now()
 	fmt.Println("ExecuteNoChannel", t1, job.JobName)
+	// fmt.Println("ExecuteNoChannel core", cpuC, job.JobName)
 	var cmd *exec.Cmd
 	// if p == "N" {
 	// 	cmd = exec.Command("schedtool", "-N", "-a", cpuC, "-e", "python3", job.Exec, strconv.Itoa(job.Para1), strconv.Itoa(job.Para2), strconv.Itoa(job.Id))
