@@ -7,6 +7,7 @@ SFS-standalone/test_SFS_test1_And_test2
 SFS-standalone/cpu_mem_usage.log
 
 synergy-controller/controller.log
+synergy-controller/no_cooperate.log
 
 result
 

@@ -1,4 +1,4 @@
-fib1 fib.py 10 0 1
-fib2 fib.py 10 0 2
-fib3 fib.py 10 0 3
-fib4 fib.py 10 0 4
+fib1 fib.py 20 0 1
+fib2 fib.py 20 0 2
+fib3 fib.py 32 0 3
+fib4 fib.py 32 0 4

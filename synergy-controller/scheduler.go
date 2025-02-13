@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	nodeIPs = []string{"172.17.0.5", "172.17.0.6", "172.17.0.7", "172.17.0.8"} // 所有节点
-	mutex   = sync.Mutex{}                                                     // 保护共享数据
+	nodeIPs = []string{"172.17.0.9", "172.17.0.10", "172.17.0.11", "172.17.0.12"} // 所有节点
+	mutex   = sync.Mutex{}                                                        // 保护共享数据
 
 	statusMutex = sync.Mutex{}
 	statusMap   = make(map[string]NodeStatus)
@@ -319,21 +319,24 @@ func ChangePolicy(ip, newPolicy string) {
 }
 
 // 监控并调整调度策略
-func MonitorAndAdjustPolicies() {
+func MonitorAndAdjustPolicies(allowAdjust bool) {
 	for {
 		statusMutex.Lock()
 		fmt.Println("Monitor get statusLock")
 		UpdateNodeStatus()
-		statusMap := GetNodeStatuses()
 
-		fifoLoad, cfsLoad := CalculatePartitionLoad(statusMap)
-		fmt.Printf("监控并调整调度策略")
-		fmt.Printf("FIFO 分区平均负载: %.2f%%, CFS 分区平均负载: %.2f%%\n", fifoLoad, cfsLoad)
+		if allowAdjust {
+			statusMap := GetNodeStatuses()
 
-		if fifoLoad < 25 && cfsLoad > 75 && longFlag {
-			SelectAndConvertNode(statusMap, "f", "c")
-		} else if cfsLoad < 25 && fifoLoad > 75 && shortFlag {
-			SelectAndConvertNode(statusMap, "c", "f")
+			fifoLoad, cfsLoad := CalculatePartitionLoad(statusMap)
+			fmt.Printf("监控并调整调度策略")
+			fmt.Printf("FIFO 分区平均负载: %.2f%%, CFS 分区平均负载: %.2f%%\n", fifoLoad, cfsLoad)
+
+			if fifoLoad < 25 && cfsLoad > 75 && longFlag {
+				SelectAndConvertNode(statusMap, "f", "c")
+			} else if cfsLoad < 25 && fifoLoad > 75 && shortFlag {
+				SelectAndConvertNode(statusMap, "c", "f")
+			}
 		}
 
 		fmt.Println("Monitor release statusLock")
@@ -347,8 +350,10 @@ func MonitorAndAdjustPolicies() {
 }
 
 func main() {
-	go MonitorAndAdjustPolicies() // 调度策略监控
-	go DispatchTasks()            // 任务分发
+	allowAdjust := true
+
+	go MonitorAndAdjustPolicies(allowAdjust) // 调度策略监控
+	go DispatchTasks()                       // 任务分发
 
 	select {} // 保持主进程运行
 }
