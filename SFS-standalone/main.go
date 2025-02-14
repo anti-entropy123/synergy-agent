@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -52,8 +53,14 @@ func main() {
 
 	http.HandleFunc("/set_reqs", runFunc(cpu))
 	http.HandleFunc("/change_policy", changePolicy)
-	go CollectMetrics()                    // 启动监控 Goroutine
-	http.HandleFunc("/get_status", status) // 注册 HTTP 端点
+
+	cpuid, err := strconv.Atoi(affinity)
+	if err != nil {
+		panic("affinity wrong")
+	}
+	CollectMetrics(cpuid) // 启动监控 Goroutine
+
+	http.HandleFunc("/get_status", status(cpuid)) // 注册 HTTP 端点
 
 	fmt.Println("Starting server on :20251...")
 	err = http.ListenAndServe("0.0.0.0:20251", nil)
@@ -62,19 +69,22 @@ func main() {
 	}
 }
 
-func status(w http.ResponseWriter, r *http.Request) {
-	Mutex.Lock()
-	defer Mutex.Unlock()
+func status(cpuid int) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		CollectMetrics(cpuid)
 
-	// 返回最近 10 条数据
-	n := 10
-	if len(StatusDataList) < n {
-		n = len(StatusDataList)
+		Mutex.Lock()
+		defer Mutex.Unlock()
+
+		n := 1
+		if len(StatusDataList) < n {
+			n = len(StatusDataList)
+		}
+		recentData := StatusDataList[len(StatusDataList)-n:]
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(recentData)
 	}
-	recentData := StatusDataList[len(StatusDataList)-n:]
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(recentData)
 }
 
 func changePolicy(w http.ResponseWriter, r *http.Request) {
@@ -218,9 +228,9 @@ func testFIFOWithTraces(cpu int, trace []Action, num int) {
 	start_time := time.Now() // 记录调度开始时间
 	wg := sync.WaitGroup{}
 
-	cache := make(chan PidI)         // 用于存储任务的通道
+	cache := make(chan PidI) // 用于存储任务的通道
 	// cpuC := GetFifoCpuSingleCpu(cpu) // 获取 FIFO CPU 配置
-	wg.Add(len(trace))               // 等待所有任务完成
+	wg.Add(len(trace)) // 等待所有任务完成
 	for _, v := range trace {
 		// wg.Add(1) //每个任务都是依次并发执行的。
 		ExecuteNoChannel(&wg, v, "F", cache, start_time, affinity) // 执行任务

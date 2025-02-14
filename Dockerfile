@@ -4,5 +4,7 @@ RUN apt update -y && apt install schedtool software-properties-common -y && add-
 RUN mkdir /synergy-agent
 COPY ./SFS-standalone/* /synergy-agent/
 WORKDIR /synergy-agent/
-RUN go build && mkdir /result
+
+# RUN go build 
+RUN mkdir /result
 # CMD ["./main"]

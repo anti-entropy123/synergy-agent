@@ -24,6 +24,15 @@ var (
 	/// 下面两个变量, 标记一个周期内, 是否有对应类型的函数到达过.
 	shortFlag = false
 	longFlag  = false
+
+	/// 每隔若干个函数请求, 通过channel通知Monitor更新状态.
+	flushStChan chan bool = make(chan bool, 1)
+)
+
+const (
+	dispatchPeriod = 100 * time.Millisecond
+	waitCompPeriod = 2 * time.Second
+	flushStPeriod  = 1 * time.Second
 )
 
 // 节点状态结构体
@@ -83,19 +92,6 @@ func ReadTasksFromFile(filename string) []Task {
 
 // 从本地的缓存中, 获取所有节点状态.
 func GetNodeStatuses() map[string]NodeStatus {
-	// 记录系统当前节点状态日志
-	fmt.Println("\n==== 当前系统节点状态 ====")
-	fifoNodes, cfsNodes := 0, 0
-	for ip, status := range statusMap {
-		fmt.Printf("节点 %s | 调度策略: %s | CPU 利用率: %.2f%%\n", ip, status.Policy, status.CPUUsage)
-		if status.Policy == "f" {
-			fifoNodes++
-		} else {
-			cfsNodes++
-		}
-	}
-	fmt.Printf("FIFO 分区节点数: %d, CFS 分区节点数: %d\n", fifoNodes, cfsNodes)
-
 	return statusMap
 }
 
@@ -129,6 +125,20 @@ func UpdateNodeStatus() {
 	}
 
 	wg.Wait()
+
+	// 记录系统当前节点状态日志
+	fmt.Println("\n==== 当前系统节点状态 ====")
+	fifoNodes, cfsNodes := 0, 0
+	for ip, status := range statusMap {
+		fmt.Printf("节点 %s | 调度策略: %s | CPU 利用率: %.2f%%\n", ip, status.Policy, status.CPUUsage)
+		if status.Policy == "f" {
+			fifoNodes++
+		} else {
+			cfsNodes++
+		}
+	}
+	fmt.Printf("FIFO 分区节点数: %d, CFS 分区节点数: %d\n", fifoNodes, cfsNodes)
+
 }
 
 func isLongTask(task *Task) bool {
@@ -183,13 +193,16 @@ func SendTaskToNode(nodeIP string, task Task) {
 	req.Header.Set("Content-Type", "text/plain")
 
 	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Printf("发送任务 %s 到节点 %s 失败: %v\n", task.Name, nodeIP, err)
-		return
-	}
-	defer resp.Body.Close()
-	fmt.Printf("任务 %s 已成功发送到节点 %s\n", task.Name, nodeIP)
+	go func() {
+		resp, err := client.Do(req)
+		if err != nil {
+			fmt.Printf("发送任务 %s 到节点 %s 失败: %v\n", task.Name, nodeIP, err)
+			return
+		}
+		defer resp.Body.Close()
+		fmt.Printf("任务 %s 已成功发送到节点 %s\n", task.Name, nodeIP)
+	}()
+
 }
 
 // 任务分发逻辑
@@ -200,10 +213,17 @@ func DispatchTasks() {
 	fmt.Printf("\n==== 任务统计 ====\n")
 	fmt.Printf("收到短任务: %d 个, 长任务: %d 个\n", shortTasks, longTasks)
 
+	flushCnt := 0
+
 	for {
 		var nextTasks []Task
 
 		for _, task := range tasks {
+			flushCnt += 1
+			if flushCnt%3 == 0 {
+				flushStChan <- true
+			}
+
 			longTask := isLongTask(&task)
 			if longTask {
 				longFlag = true
@@ -225,11 +245,12 @@ func DispatchTasks() {
 			}
 		}
 
+		fmt.Println("dispatch finish one batch")
 		if len(nextTasks) == 0 {
 			break
 		}
 		tasks = nextTasks
-		time.Sleep(1 * time.Second)
+		time.Sleep(dispatchPeriod)
 	}
 }
 
@@ -297,7 +318,7 @@ func WaitForTasksCompletion(ip string) {
 			fmt.Printf("节点 %s 任务完成, CPU 负载: %.2f%%, 准备切换策略\n", ip, status.CPUUsage)
 			return
 		}
-		time.Sleep(1 * time.Second) // 每 2 秒检查一次
+		time.Sleep(waitCompPeriod) // 每 2 秒检查一次
 		UpdateNodeStatus()
 	}
 }
@@ -339,13 +360,25 @@ func MonitorAndAdjustPolicies(allowAdjust bool) {
 			}
 		}
 
+		cleared := false
+		for !cleared {
+			select {
+			case <-flushStChan:
+			default:
+				cleared = true
+			}
+		}
+
 		fmt.Println("Monitor release statusLock")
 		statusMutex.Unlock()
 
 		longFlag = false
 		shortFlag = false
 
-		time.Sleep(1 * time.Second) // 每 5 秒检查一次
+		select {
+		case <-time.NewTimer(time.Second).C:
+		case <-flushStChan:
+		}
 	}
 }
 
@@ -355,5 +388,8 @@ func main() {
 	go MonitorAndAdjustPolicies(allowAdjust) // 调度策略监控
 	go DispatchTasks()                       // 任务分发
 
-	select {} // 保持主进程运行
+	fmt.Println("Dispatch finished.")
+	time.Sleep(3 * time.Second)
+
+	select {}
 }

@@ -6,11 +6,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/shirou/gopsutil/v3/cpu"
 	// "github.com/shirou/gopsutil/cpu"
 	// "github.com/shirou/gopsutil/mem"
-	"bufio"
-	"strconv"
-	"strings"
 )
 
 type StatusData struct {
@@ -27,59 +25,18 @@ var (
 )
 
 // 读取 `/proc/stat` 获取 CPU 时间信息
-func getCPUUsage() float64 {
-	// 打开 /proc/stat
-	file, err := os.Open("/proc/stat")
+func getCPUUsage(cpuid int) (float64, error) {
+	percentages, err := cpu.Percent(time.Second, true) // true 表示返回每个核心的负载
 	if err != nil {
-		fmt.Println("Error reading /proc/stat:", err)
-		return 0.0
+		return 0, err
 	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	scanner.Scan()
-	fields := strings.Fields(scanner.Text())
+	if cpuid >= len(percentages) {
+		return 0, fmt.Errorf("CPU %d 不存在", cpuid)
+	}
 
-	// 解析 CPU 时间
-	var user, nice, system, idle, iowait, irq, softirq int64
-	user, _ = strconv.ParseInt(fields[1], 10, 64)
-	nice, _ = strconv.ParseInt(fields[2], 10, 64)
-	system, _ = strconv.ParseInt(fields[3], 10, 64)
-	idle, _ = strconv.ParseInt(fields[4], 10, 64)
-	iowait, _ = strconv.ParseInt(fields[5], 10, 64)
-	irq, _ = strconv.ParseInt(fields[6], 10, 64)
-	softirq, _ = strconv.ParseInt(fields[7], 10, 64)
+	return percentages[cpuid], nil
 
-	// 计算总时间 & 空闲时间
-	totalTime := user + nice + system + idle + iowait + irq + softirq
-	idleTime := idle + iowait
-
-	// 等待 50ms 重新读取数据
-	time.Sleep(50 * time.Millisecond)
-
-	// 再次读取 CPU 信息
-	file.Seek(0, 0)
-	scanner = bufio.NewScanner(file)
-	scanner.Scan()
-	fields = strings.Fields(scanner.Text())
-
-	user2, _ := strconv.ParseInt(fields[1], 10, 64)
-	nice2, _ := strconv.ParseInt(fields[2], 10, 64)
-	system2, _ := strconv.ParseInt(fields[3], 10, 64)
-	idle2, _ := strconv.ParseInt(fields[4], 10, 64)
-	iowait2, _ := strconv.ParseInt(fields[5], 10, 64)
-	irq2, _ := strconv.ParseInt(fields[6], 10, 64)
-	softirq2, _ := strconv.ParseInt(fields[7], 10, 64)
-
-	totalTime2 := user2 + nice2 + system2 + idle2 + iowait2 + irq2 + softirq2
-	idleTime2 := idle2 + iowait2
-
-	// 计算 CPU 利用率
-	deltaTotal := float64(totalTime2 - totalTime)
-	deltaIdle := float64(idleTime2 - idleTime)
-	cpuUsage := 100 * (1 - deltaIdle/deltaTotal)
-
-	return cpuUsage
 }
 
 // // 读取 `/proc/meminfo` 获取内存使用率
@@ -126,8 +83,8 @@ func getNodeName() string {
 	return hostname
 }
 
-// 采集 CPU 和内存数据的 Goroutine
-func CollectMetrics() {
+// 采集 CPU 和内存数据
+func CollectMetrics(affinity int) {
 	file, err := os.OpenFile("cpu_mem_usage.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Println("Error opening log file:", err)
@@ -137,42 +94,41 @@ func CollectMetrics() {
 
 	node := getNodeName()
 
-	for {
-		// 获取 CPU 利用率
-		// cpuPercent, _ := cpu.Percent(0, false)
-		// 获取内存利用率
-		// vmStat, _ := mem.VirtualMemory()
+	// 获取 CPU 利用率
+	// cpuPercent, _ := cpu.Percent(0, false)
+	// 获取内存利用率
+	// vmStat, _ := mem.VirtualMemory()
 
-		// 获取 CPU 和内存使用率
-		cpuUsage := getCPUUsage()
-		// memUsage := getMemUsage()
-
-		// 记录时间戳
-		timestamp := time.Now().UnixMilli()
-
-		// 存入全局变量
-		Mutex.Lock()
-		data := StatusData{
-			Timestamp: timestamp,
-			// CPUUsage:  cpuPercent[0],      // CPU 利用率（单核平均）
-			// MemUsage:  vmStat.UsedPercent, // 内存使用率
-			CPUUsage: cpuUsage,
-			// MemUsage: memUsage,
-			Policy: policy,
-			Node:   node,
-		}
-		StatusDataList = append(StatusDataList, data)
-		if len(StatusDataList) > 1000 { // 只保留最近 1000 条数据
-			StatusDataList = StatusDataList[len(StatusDataList)-1000:]
-		}
-		Mutex.Unlock()
-
-		// 追加写入日志文件
-		// logEntry := fmt.Sprintf("%d,%.2f,%.2f,%s,%s\n", timestamp, data.CPUUsage, data.MemUsage, data.Policy, data.Node)
-		logEntry := fmt.Sprintf("%d,%.2f,%s,%s\n", timestamp, data.CPUUsage, data.Policy, data.Node)
-		file.WriteString(logEntry)
-
-		// 休眠 50ms
-		time.Sleep(50 * time.Millisecond)
+	// 获取 CPU 和内存使用率
+	cpuUsage, err := getCPUUsage(affinity)
+	if err != nil {
+		fmt.Printf("get CPU Usage failed, err=%s\n", err)
 	}
+	// memUsage := getMemUsage()
+
+	// 记录时间戳
+	timestamp := time.Now().UnixMilli()
+
+	// 存入全局变量
+	Mutex.Lock()
+	data := StatusData{
+		Timestamp: timestamp,
+		// CPUUsage:  cpuPercent[0],      // CPU 利用率（单核平均）
+		// MemUsage:  vmStat.UsedPercent, // 内存使用率
+		CPUUsage: cpuUsage,
+		// MemUsage: memUsage,
+		Policy: policy,
+		Node:   node,
+	}
+	StatusDataList = append(StatusDataList, data)
+	if len(StatusDataList) > 1000 { // 只保留最近 1000 条数据
+		StatusDataList = StatusDataList[len(StatusDataList)-1000:]
+	}
+	Mutex.Unlock()
+
+	// 追加写入日志文件
+	// logEntry := fmt.Sprintf("%d,%.2f,%.2f,%s,%s\n", timestamp, data.CPUUsage, data.MemUsage, data.Policy, data.Node)
+	logEntry := fmt.Sprintf("%d,%.2f,%s,%s\n", timestamp, data.CPUUsage, data.Policy, data.Node)
+	file.WriteString(logEntry)
+
 }
