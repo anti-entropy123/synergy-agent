@@ -1,6 +1,6 @@
-slice := "0"
+silence := "0"
 
-console_redirect := if slice == "1" {
+console_redirect := if silence == "1" {
     "&>/dev/null"
 } else {
     ""
@@ -103,9 +103,11 @@ run_controller:
     cd synergy-controller && go build scheduler.go
     sleep 3
 
+    export trace_file="test_data/40-200"
+
     date '+%s.%N'
-    ./scheduler --allowAdjust --trace test {{console_redirect}}
+    ./scheduler --allowAdjust --trace $trace_file {{console_redirect}}
     date '+%s.%N'
-    ./scheduler --trace test {{console_redirect}}
+    ./scheduler --trace $trace_file {{console_redirect}}
     date '+%s.%N'
     just export_agent_log
