@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
@@ -15,8 +16,9 @@ import (
 )
 
 var (
-	nodeIPs = []string{"172.17.0.9", "172.17.0.10", "172.17.0.11", "172.17.0.12"} // 所有节点
-	mutex   = sync.Mutex{}                                                        // 保护共享数据
+	// nodeIPs = []string{"localhost"}
+	nodeIPs = []string{}   // 所有节点
+	mutex   = sync.Mutex{} // 保护共享数据
 
 	statusMutex = sync.Mutex{}
 	statusMap   = make(map[string]NodeStatus)
@@ -26,7 +28,8 @@ var (
 	longFlag  = false
 
 	/// 每隔若干个函数请求, 通过channel通知Monitor更新状态.
-	flushStChan chan bool = make(chan bool, 1)
+	flushStChan    chan bool = make(chan bool, 1)
+	flushThreshold           = 32
 )
 
 const (
@@ -46,11 +49,12 @@ type NodeStatus struct {
 
 // 任务结构体
 type Task struct {
-	Name    string
-	Script  string
-	Param   int
-	Unused1 int
-	Unused2 int
+	Name     string
+	Script   string
+	Param    int
+	Unused1  int
+	Unused2  int
+	ConStart string
 }
 
 // 读取 `test` 文件并解析任务
@@ -64,6 +68,9 @@ func ReadTasksFromFile(filename string) []Task {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
+	conStart := time.Now()
+	timeStr := conStart.Format("2006-01-02 15:04:05.000")
+
 	for scanner.Scan() {
 		fields := strings.Fields(scanner.Text())
 		if len(fields) < 5 {
@@ -75,11 +82,12 @@ func ReadTasksFromFile(filename string) []Task {
 		unused2, _ := strconv.Atoi(fields[4])
 
 		task := Task{
-			Name:    fields[0],
-			Script:  fields[1],
-			Param:   param,
-			Unused1: unused1,
-			Unused2: unused2,
+			Name:     fields[0],
+			Script:   fields[1],
+			Param:    param,
+			Unused1:  unused1,
+			Unused2:  unused2,
+			ConStart: timeStr,
 		}
 		tasks = append(tasks, task)
 	}
@@ -188,7 +196,7 @@ func SelectBestNode(statusMap map[string]NodeStatus, task Task, longTask bool) s
 // 发送任务请求到指定节点
 func SendTaskToNode(nodeIP string, task Task) {
 	url := fmt.Sprintf("http://%s:20251/set_reqs", nodeIP)
-	taskData := fmt.Sprintf("%s %s %d %d %d", task.Name, task.Script, task.Param, task.Unused1, task.Unused2)
+	taskData := fmt.Sprintf("%s %s %d %d %d %s", task.Name, task.Script, task.Param, task.Unused1, task.Unused2, task.ConStart)
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer([]byte(taskData)))
 	req.Header.Set("Content-Type", "text/plain")
 
@@ -206,8 +214,8 @@ func SendTaskToNode(nodeIP string, task Task) {
 }
 
 // 任务分发逻辑
-func DispatchTasks() {
-	tasks := ReadTasksFromFile("test")
+func DispatchTasks(trace string) {
+	tasks := ReadTasksFromFile(trace)
 	shortTasks, longTasks := CountTasks(tasks)
 
 	fmt.Printf("\n==== 任务统计 ====\n")
@@ -219,12 +227,18 @@ func DispatchTasks() {
 		var nextTasks []Task
 
 		for _, task := range tasks {
-			flushCnt += 1
-			if flushCnt%3 == 0 {
+			longTask := isLongTask(&task)
+
+			if longTask {
+				flushCnt += 5
+			} else {
+				flushCnt += 1
+			}
+			if flushCnt > flushThreshold {
+				flushCnt = 0
 				flushStChan <- true
 			}
 
-			longTask := isLongTask(&task)
 			if longTask {
 				longFlag = true
 			} else {
@@ -353,9 +367,10 @@ func MonitorAndAdjustPolicies(allowAdjust bool) {
 			fmt.Printf("监控并调整调度策略")
 			fmt.Printf("FIFO 分区平均负载: %.2f%%, CFS 分区平均负载: %.2f%%\n", fifoLoad, cfsLoad)
 
-			if fifoLoad < 25 && cfsLoad > 75 && longFlag {
+			// 测不同数据集需要更改一下切换负载，以下负载适用于600-27 20-32
+			if fifoLoad < 10 && cfsLoad > 20 && longFlag {
 				SelectAndConvertNode(statusMap, "f", "c")
-			} else if cfsLoad < 25 && fifoLoad > 75 && shortFlag {
+			} else if cfsLoad < 10 && fifoLoad > 20 && shortFlag {
 				SelectAndConvertNode(statusMap, "c", "f")
 			}
 		}
@@ -383,13 +398,24 @@ func MonitorAndAdjustPolicies(allowAdjust bool) {
 }
 
 func main() {
-	allowAdjust := true
+	allowAdjust := false
+	trace_name := ""
+
+	flag.BoolVar(&allowAdjust, "allowAdjust", false, "allow adjust agent policy")
+	flag.StringVar(&trace_name, "trace", "test_tiny", "trace file name")
+	flag.Parse()
+
+	if allowAdjust {
+		nodeIPs = []string{"172.17.0.5", "172.17.0.6", "172.17.0.7", "172.17.0.8"}
+	} else {
+		nodeIPs = []string{"172.17.0.9", "172.17.0.10", "172.17.0.11", "172.17.0.12"}
+	}
 
 	go MonitorAndAdjustPolicies(allowAdjust) // 调度策略监控
-	go DispatchTasks()                       // 任务分发
+	DispatchTasks(trace_name)                // 任务分发
 
 	fmt.Println("Dispatch finished.")
-	time.Sleep(3 * time.Second)
+	time.Sleep(5 * time.Second)
 
-	select {}
+	// select {}
 }

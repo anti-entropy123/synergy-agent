@@ -21,13 +21,14 @@ type PidI struct { //fib1 fib.py 27 5 1
 	Id     int //最后一列的id号
 	St     time.Time
 	Credit int
+	t0     string
 }
 
 func Send(job Action, pids chan PidI) {
 	// Send just send request to receiver
 	o := time.Now()
 	//time.Sleep(time.Duration(job.Start)*time.Millisecond)
-	new_pid := PidI{-10, job.JobName, job.Para1, job.Id, o, -3}
+	new_pid := PidI{-10, job.JobName, job.Para1, job.Id, o, -3, job.ConStart}
 	// new_pid := PidI{-10, job.JobName, job.Para1, job.Para2, job.Id, o, -3}
 	pids <- new_pid
 }
@@ -66,9 +67,9 @@ func Execute(job PidI, p string, pids chan PidI, core string, queue chan PidI, c
 	// 	new_pid = PidI{0, job.Job, job.N1, job.N2, job.Id, time.Now(), job.Credit}
 	// }
 	if cmd != nil {
-		new_pid = PidI{pid, job.Job, job.N1, job.Id, time.Now(), job.Credit}
+		new_pid = PidI{pid, job.Job, job.N1, job.Id, time.Now(), job.Credit, job.t0}
 	} else {
-		new_pid = PidI{0, job.Job, job.N1, job.Id, time.Now(), job.Credit}
+		new_pid = PidI{0, job.Job, job.N1, job.Id, time.Now(), job.Credit, job.t0}
 	}
 	queue <- new_pid
 	// fmt.Println("pid", pid, job.Job)
@@ -143,14 +144,21 @@ func ExecuteNoChannel(wg *sync.WaitGroup, job Action, p string, pids chan PidI, 
 		fmt.Println("cmd.Wait", t2, ", context switch ", cmd.ProcessState.SysUsage().(*syscall.Rusage).Nivcsw, job.JobName)
 		fmt.Println("User CPU Time ", cmd.ProcessState.SysUsage().(*syscall.Rusage).Utime, job.JobName)
 
-		fmt.Println(job.JobName, t2.Sub(t1).Milliseconds())
+		t0, err := time.ParseInLocation("2006-01-02 15:04:05.000", job.ConStart, time.Local)
+		if err != nil {
+			fmt.Printf("parse conStart failed, err=%v\n", err)
+			panic(err)
+		}
+		
+		fmt.Printf("t2=%s, %v, t0=%s, %v\n", t2.Format("2006-01-02 15:04:05.000"), t2, job.ConStart, t0)
+		fmt.Println(job.JobName, t2.Sub(t0).Milliseconds())
 		//fmt.Println(t2.Sub(t1).Milliseconds())
 		//fmt.Println("logs TIME: ", job.JobName, t1.Sub(start_time), t2.Sub(start_time))
 
 		// 通知主线程当前任务已经完成
 		// new_pid := PidI{cmd.Process.Pid, job.JobName, job.Para1, job.Para2, job.Id, t2, -3}
 		// fmt.Println("new_pid ", new_pid)
-		new_pid := PidI{cmd.Process.Pid, job.JobName, job.Para1, job.Id, t2, -3}
+		new_pid := PidI{cmd.Process.Pid, job.JobName, job.Para1, job.Id, t2, -3, job.ConStart}
 		pids <- new_pid
 	}()
 }
