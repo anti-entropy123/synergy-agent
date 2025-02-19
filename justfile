@@ -1,4 +1,4 @@
-slice := "1"
+slice := "0"
 
 console_redirect := if slice == "1" {
     "&>/dev/null"
@@ -86,9 +86,11 @@ gen_csv:
         python3 ../get_log_data.py agent-$i.log agent-$i.csv; \
     done
 
-comp_turnaround: gen_csv
+comp_turnaround: export_agent_log gen_csv
     cd synergy-controller/result && python3 ../merge_csv.py agent1_4.csv agent-1.csv agent-2.csv agent-3.csv agent-4.csv
     cd synergy-controller/result && python3 ../merge_csv.py agent6_9.csv agent-6.csv agent-7.csv agent-8.csv agent-9.csv
+    cd synergy-controller/result && wc -l agent1_4.csv
+    cd synergy-controller/result && wc -l agent6_9.csv
 
 send_reqs:
     curl -X POST -H "Content-Type: text/plain" --data-binary @synergy-controller/test_tiny http://localhost:20251/set_reqs
@@ -102,8 +104,8 @@ run_controller:
     sleep 3
 
     date '+%s.%N'
-    ./scheduler --allowAdjust --trace test_med {{console_redirect}}
+    ./scheduler --allowAdjust --trace test {{console_redirect}}
     date '+%s.%N'
-    ./scheduler --trace test_med {{console_redirect}}
+    ./scheduler --trace test {{console_redirect}}
     date '+%s.%N'
     just export_agent_log

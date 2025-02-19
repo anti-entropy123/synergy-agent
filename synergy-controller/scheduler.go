@@ -104,7 +104,10 @@ func GetNodeStatuses() map[string]NodeStatus {
 }
 
 func UpdateNodeStatus() {
-	statusMap = make(map[string]NodeStatus)
+	statusMutex.Lock()
+	defer statusMutex.Unlock()
+
+	newStatusMap := make(map[string]NodeStatus)
 
 	var wg sync.WaitGroup
 	var mutex sync.Mutex
@@ -126,13 +129,14 @@ func UpdateNodeStatus() {
 
 			if len(statuses) > 0 {
 				mutex.Lock()
-				statusMap[ip] = statuses[len(statuses)-1] // 取最新状态
+				newStatusMap[ip] = statuses[len(statuses)-1] // 取最新状态
 				mutex.Unlock()
 			}
 		}(ip)
 	}
-
 	wg.Wait()
+
+	statusMap = newStatusMap
 
 	// 记录系统当前节点状态日志
 	fmt.Println("\n==== 当前系统节点状态 ====")
@@ -169,7 +173,7 @@ func CountTasks(tasks []Task) (int, int) {
 // 根据任务类型 (长/短) 选择最低负载的合适节点
 func SelectBestNode(statusMap map[string]NodeStatus, task Task, longTask bool) string {
 	var selectedNode string
-	minLoad := 100.0
+	minLoad := 80.0
 
 	for ip, status := range statusMap {
 		if (!longTask && status.Policy == "f") || (longTask && status.Policy == "c") {
@@ -315,8 +319,11 @@ func SelectAndConvertNode(statusMap map[string]NodeStatus, fromPolicy, toPolicy 
 	}
 
 	if selectedNode != nil {
+		statusMutex.Lock()
+		defer statusMutex.Unlock()
+
 		fmt.Printf("选择节点 %s 进行 %s -> %s 切换, 当前 CPU 负载: %.2f%%\n", selectedIp, fromPolicy, toPolicy, minLoad)
-		WaitForTasksCompletion(selectedIp)
+		// WaitForTasksCompletion(selectedIp)
 		ChangePolicy(selectedIp, toPolicy)
 		// 如果确定要切换某个 node 的 policy, 先更新本地的 status. 避免再向该节点发送错误的任务类型.
 		selectedNode.Policy = toPolicy
@@ -356,7 +363,6 @@ func ChangePolicy(ip, newPolicy string) {
 // 监控并调整调度策略
 func MonitorAndAdjustPolicies(allowAdjust bool) {
 	for {
-		statusMutex.Lock()
 		fmt.Println("Monitor get statusLock")
 		UpdateNodeStatus()
 
@@ -385,7 +391,6 @@ func MonitorAndAdjustPolicies(allowAdjust bool) {
 		}
 
 		fmt.Println("Monitor release statusLock")
-		statusMutex.Unlock()
 
 		longFlag = false
 		shortFlag = false
