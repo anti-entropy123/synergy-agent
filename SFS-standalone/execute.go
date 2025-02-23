@@ -91,7 +91,7 @@ func ExecuteNoChannel(wg *sync.WaitGroup, job Action, p string, pids chan PidI, 
 	defer wg.Done()
 	//time.Sleep(time.Duration(job.Start) * time.Millisecond)
 	t1 := time.Now()
-	fmt.Println("ExecuteNoChannel", t1, job.JobName)
+	fmt.Println("ExecuteNoChannel", t1, job.JobName, job.Exec)
 	// fmt.Println("ExecuteNoChannel core", cpuC, job.JobName)
 	var cmd *exec.Cmd
 	// if p == "N" {
@@ -127,7 +127,7 @@ func ExecuteNoChannel(wg *sync.WaitGroup, job Action, p string, pids chan PidI, 
 	go func() { // 任务的执行顺序是并发的，每个任务的执行不受前一个任务的影响。
 		//读取标准输出的内容
 		// output, err := ioutil.ReadAll(stdout)
-		_, err := ioutil.ReadAll(stdout)
+		errlog, err := ioutil.ReadAll(stdout)
 		if err != nil {
 			log.Fatal("Failed to read stdout:", err)
 		}
@@ -137,7 +137,8 @@ func ExecuteNoChannel(wg *sync.WaitGroup, job Action, p string, pids chan PidI, 
 
 		err = cmd.Wait() // 等待命令执行完成
 		if err != nil {
-			log.Fatal("exec 2", err)
+			fmt.Println("exec 2", err)
+			log.Fatal("failed reason: ", string(errlog))
 		}
 
 		t2 := time.Now()

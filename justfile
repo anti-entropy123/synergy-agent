@@ -57,7 +57,7 @@ clear_log:
 reset_policy:
     curl -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.5:20251/change_policy
     curl -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.6:20251/change_policy
-    curl -X POST -H "Content-Type: text/plain" --data 'c' http://172.17.0.7:20251/change_policy
+    curl -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.7:20251/change_policy
     curl -X POST -H "Content-Type: text/plain" --data 'c' http://172.17.0.8:20251/change_policy
     curl -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.9:20251/change_policy
     curl -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.10:20251/change_policy
@@ -92,8 +92,8 @@ comp_turnaround: export_agent_log gen_csv
     cd synergy-controller/result && wc -l agent1_4.csv
     cd synergy-controller/result && wc -l agent6_9.csv
 
-send_reqs:
-    curl -X POST -H "Content-Type: text/plain" --data-binary @synergy-controller/test_tiny http://localhost:20251/set_reqs
+send_reqs trace='test_tiny':
+    curl -X POST -H "Content-Type: text/plain" --data-binary @synergy-controller/{{trace}} http://localhost:20251/set_reqs
 
 run_controller:
     #!/usr/bin/bash
