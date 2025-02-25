@@ -28,7 +28,19 @@ start_nocoop_agent:
 stop_nocoop_agent:
     docker stop agent-6 agent-7 agent-8 agent-9
 
-stop_all: stop_agent stop_nocoop_agent
+start_sfs_agent:
+    docker run --rm -d --cap-add SYS_NICE --name agent-11 synergy-agent ./main -a 54 -p m
+    docker run --rm -d --cap-add SYS_NICE --name agent-12 synergy-agent ./main -a 60 -p m
+    docker run --rm -d --cap-add SYS_NICE --name agent-13 synergy-agent ./main -a 66 -p m
+    docker run --rm -d --cap-add SYS_NICE --name agent-14 synergy-agent ./main -a 72 -p m
+
+    echo "所有synergy sfs agent 容器已启动。"
+
+stop_sfs_agent:
+    docker stop agent-11 agent-12 agent-13 agent-14
+
+start_all: start_agent start_nocoop_agent start_sfs_agent
+stop_all: stop_agent stop_nocoop_agent stop_sfs_agent
 
 build_agent_image:
     cd SFS-standalone && go build .
@@ -57,12 +69,16 @@ clear_log:
 reset_policy:
     curl -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.5:20251/change_policy
     curl -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.6:20251/change_policy
-    curl -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.7:20251/change_policy
+    curl -X POST -H "Content-Type: text/plain" --data 'c' http://172.17.0.7:20251/change_policy
     curl -X POST -H "Content-Type: text/plain" --data 'c' http://172.17.0.8:20251/change_policy
     curl -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.9:20251/change_policy
     curl -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.10:20251/change_policy
     curl -X POST -H "Content-Type: text/plain" --data 'c' http://172.17.0.11:20251/change_policy
     curl -X POST -H "Content-Type: text/plain" --data 'c' http://172.17.0.12:20251/change_policy
+    curl -X POST -H "Content-Type: text/plain" --data 'm' http://172.17.0.13:20251/change_policy
+    curl -X POST -H "Content-Type: text/plain" --data 'm' http://172.17.0.14:20251/change_policy
+    curl -X POST -H "Content-Type: text/plain" --data 'm' http://172.17.0.15:20251/change_policy
+    curl -X POST -H "Content-Type: text/plain" --data 'm' http://172.17.0.16:20251/change_policy
 
 export_agent_log:
     #!/usr/bin/bash
@@ -95,7 +111,7 @@ comp_turnaround: export_agent_log gen_csv
 send_reqs trace='test_tiny':
     curl -X POST -H "Content-Type: text/plain" --data-binary @synergy-controller/{{trace}} http://localhost:20251/set_reqs
 
-run_controller:
+run_controller trace_file="test_tiny":
     #!/usr/bin/bash
     
     just reset_policy
@@ -103,7 +119,7 @@ run_controller:
     cd synergy-controller && go build scheduler.go
     sleep 3
 
-    export trace_file="test_data/40-200"
+    export trace_file={{trace_file}}
 
     date '+%s.%N'
     ./scheduler --allowAdjust --trace $trace_file {{console_redirect}}

@@ -95,7 +95,7 @@ func changePolicy(w http.ResponseWriter, r *http.Request) {
 
 	content := string(body) // 请求体内容转为字符串
 
-	allowed := []string{"c", "f"} // 允许的策略
+	allowed := []string{"c", "f", "m"} // 允许的策略
 	new_policy := ""
 	for _, v := range allowed {
 		if content == v { // 检查是否是合法的策略
@@ -121,11 +121,14 @@ func runFunc(cpu int) func(http.ResponseWriter, *http.Request) {
 
 		trace, num := ParseTrace(strings.Split(string(body), "\n")) // 解析任务请求
 
-		if policy == "c" {
+		switch policy {
+		case "c":
 			testCFSWithTraces(cpu, trace, num) // 运行 CFS 调度
-		} else if policy == "f" {
+		case "f":
 			testFIFOWithTraces(cpu, trace, num) // 运行 FIFO 调度
-		} else {
+		case "m":
+			testSFSWithTraces(cpu, trace, num)
+		default:
 			panic("wrong policy") // 非法策略
 		}
 	}
@@ -142,57 +145,22 @@ func runFunc(cpu int) func(http.ResponseWriter, *http.Request) {
 // 	testSFSWithTraces(cpu, trace, num)
 // }
 
-// func testSFSWithTraces(cpu int, trace []Action, num int) {
-// 	wg := sync.WaitGroup{}
-// 	cache := make(chan PidI)
-// 	wg.Add(1)
-// 	go Scheduler(&wg, cache, cpu, num)
-// 	for i := 0; i < len(trace); i++ {
-// 		Send(trace[i], cache)
-// job := trace[i]
-// o := time.Now()
-// new_pid := PidI{-10, job.JobName, job.Para1, job.Id, o, -3}
-// cache <- new_pid
+func testSFSWithTraces(cpu int, trace []Action, num int) {
+	wg := sync.WaitGroup{}
+	cache := make(chan PidI)
+	wg.Add(1)
+	go Scheduler(&wg, cache, cpu, num)
 
-// if i < len(trace)-1 {
-// 	time.Sleep(time.Duration(trace[i+1].Start-trace[i].Start) * time.Millisecond)
-// }
+	for i := 0; i < len(trace); i++ {
+		Send(trace[i], cache)
+		job := trace[i]
+		o := time.Now()
+		new_pid := PidI{-10, job.JobName, job.Para1, job.Id, o, -3, trace[i].ConStart}
+		cache <- new_pid
+	}
 
-// }
-
-// wg.Wait()
-// }
-
-// func parseJSONData(source string) ([]Action, int, error) {
-// 	resp, err := http.Get(fmt.Sprintf("http://172.17.0.1:3020/api/acquire_requests/%s", "short"))
-// 	if err != nil {
-// 		return nil, 0, fmt.Errorf("error fetching trace: %v", err)
-// 	}
-// 	defer resp.Body.Close()
-
-// 	var data map[string]interface{}
-// 	err = json.NewDecoder(resp.Body).Decode(&data)
-// 	if err != nil {
-// 		return nil, 0, fmt.Errorf("error decoding JSON: %v", err)
-// 	}
-
-// 	content := data["content"].([]interface{})
-// 	numLong := int(data["num_short"].(float64))
-
-// 	var trace []Action
-// 	for _, item := range content {
-// 		actionData := item.(map[string]interface{})
-// 		trace = append(trace, Action{
-// 			JobName: actionData["jobname"].(string),
-// 			Exec:    actionData["exec"].(string),
-// 			Para1:   int(actionData["para1"].(float64)),
-// 			Start:   int(actionData["start"].(float64)),
-// 			Id:      int(actionData["id"].(float64)),
-// 		})
-// 	}
-
-// 	return trace, numLong, nil
-// }
+	wg.Wait()
+}
 
 // func testSFS(cpu int, source string) {
 // 	wg := sync.WaitGroup{}

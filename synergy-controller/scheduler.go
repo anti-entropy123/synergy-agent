@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -29,8 +30,10 @@ var (
 
 	/// 每隔若干个函数请求, 通过channel通知Monitor更新状态.
 	flushStChan    chan bool = make(chan bool, 1)
-	flushThreshold           = 32
+	flushThreshold           = 64
 )
+
+type SelectFunc = func(map[string]NodeStatus, Task) (string, NodeStatus)
 
 const (
 	dispatchPeriod = 100 * time.Millisecond
@@ -53,7 +56,7 @@ type Task struct {
 	Script   string
 	Param    int
 	Unused1  int
-	Unused2  int
+	Seq      int
 	ConStart string
 }
 
@@ -79,14 +82,14 @@ func ReadTasksFromFile(filename string) []Task {
 
 		param, _ := strconv.Atoi(fields[2])
 		unused1, _ := strconv.Atoi(fields[3])
-		unused2, _ := strconv.Atoi(fields[4])
+		seq, _ := strconv.Atoi(fields[4])
 
 		task := Task{
 			Name:     fields[0],
 			Script:   fields[1],
 			Param:    param,
 			Unused1:  unused1,
-			Unused2:  unused2,
+			Seq:      seq,
 			ConStart: timeStr,
 		}
 		tasks = append(tasks, task)
@@ -170,27 +173,73 @@ func CountTasks(tasks []Task) (int, int) {
 	return shortTasks, longTasks
 }
 
-// 根据任务类型 (长/短) 选择最低负载的合适节点
-func SelectBestNode(statusMap map[string]NodeStatus, task Task, longTask bool) string {
+func LeastLoaded(nodes map[string]NodeStatus, task Task) (string, NodeStatus) {
 	var selectedNode string
-	minLoad := 80.0
+	var selectedStatus NodeStatus
 
-	for ip, status := range statusMap {
-		if (!longTask && status.Policy == "f") || (longTask && status.Policy == "c") {
-			if status.CPUUsage < minLoad {
-				minLoad = status.CPUUsage
-				selectedNode = ip
-			}
+	minLoad := 100.0
+	for ip, status := range nodes {
+		if status.CPUUsage < minLoad {
+			minLoad = status.CPUUsage
+			selectedNode = ip
+			selectedStatus = status
 		}
 	}
 
-	taskTypeStr := "短任务 (FIFO)"
-	if longTask {
+	return selectedNode, selectedStatus
+}
+
+func RandomNode(nodes map[string]NodeStatus, task Task) (string, NodeStatus) {
+	for ip, status := range nodes {
+		return ip, status
+	}
+
+	return "", NodeStatus{}
+}
+
+func HashNode(nodes map[string]NodeStatus, task Task) (string, NodeStatus) {
+	if len(nodes) == 0 {
+		return "", NodeStatus{}
+	}
+
+	ips := []string{}
+	statuses := []*NodeStatus{}
+
+	for _, ip := range nodeIPs {
+		if status, exist := nodes[ip]; exist {
+			ips = append(ips, ip)
+			statuses = append(statuses, &status)
+		}
+	}
+
+	key := task.Seq % len(ips)
+	return ips[key], *statuses[key]
+}
+
+// 根据任务类型 (长/短) 选择最低负载的合适节点
+func SelectBestNode(statusMap map[string]NodeStatus, task Task, policy string, selectBy SelectFunc) string {
+	nodes := make(map[string]NodeStatus)
+
+	for ip, status := range statusMap {
+		if status.Policy == policy && status.CPUUsage < 80 {
+			nodes[ip] = status
+		}
+	}
+
+	selectedNode, status := selectBy(nodes, task)
+
+	var taskTypeStr string
+	switch policy {
+	case "f":
+		taskTypeStr = "短任务 (FIFO)"
+	case "c":
 		taskTypeStr = "长任务 (CFS)"
+	case "m":
+		taskTypeStr = "SFS"
 	}
 
 	if selectedNode != "" {
-		fmt.Printf("任务 %s (%s) 分配到节点 %s (CPU 负载: %.2f%%)\n", task.Name, taskTypeStr, selectedNode, minLoad)
+		fmt.Printf("任务 %s (%s) 分配到节点 %s (CPU 负载: %.2f%%)\n", task.Name, taskTypeStr, selectedNode, status.CPUUsage)
 	} else {
 		fmt.Printf("没有可用的 %s 节点，任务 %s 等待调度\n", taskTypeStr, task.Name)
 	}
@@ -200,7 +249,7 @@ func SelectBestNode(statusMap map[string]NodeStatus, task Task, longTask bool) s
 // 发送任务请求到指定节点
 func SendTaskToNode(nodeIP string, task Task) {
 	url := fmt.Sprintf("http://%s:20251/set_reqs", nodeIP)
-	taskData := fmt.Sprintf("%s %s %d %d %d %s", task.Name, task.Script, task.Param, task.Unused1, task.Unused2, task.ConStart)
+	taskData := fmt.Sprintf("%s %s %d %d %d %s", task.Name, task.Script, task.Param, task.Unused1, task.Seq, task.ConStart)
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer([]byte(taskData)))
 	req.Header.Set("Content-Type", "text/plain")
 
@@ -218,8 +267,7 @@ func SendTaskToNode(nodeIP string, task Task) {
 }
 
 // 任务分发逻辑
-func DispatchTasks(trace string) {
-	tasks := ReadTasksFromFile(trace)
+func DispatchTasks(tasks []Task, use_sfs bool, selectBy SelectFunc) {
 	shortTasks, longTasks := CountTasks(tasks)
 
 	fmt.Printf("\n==== 任务统计 ====\n")
@@ -231,6 +279,7 @@ func DispatchTasks(trace string) {
 		var nextTasks []Task
 
 		for _, task := range tasks {
+			policy := "f"
 			longTask := isLongTask(&task)
 
 			if longTask {
@@ -244,9 +293,14 @@ func DispatchTasks(trace string) {
 			}
 
 			if longTask {
+				policy = "c"
 				longFlag = true
 			} else {
 				shortFlag = true
+			}
+
+			if use_sfs {
+				policy = "m"
 			}
 
 			statusMutex.Lock()
@@ -255,7 +309,7 @@ func DispatchTasks(trace string) {
 			fmt.Println("dispatcher release statusLock")
 			statusMutex.Unlock()
 
-			nodeIP := SelectBestNode(statusMap, task, longTask)
+			nodeIP := SelectBestNode(statusMap, task, policy, selectBy)
 			if nodeIP != "" {
 				SendTaskToNode(nodeIP, task)
 			} else {
@@ -404,20 +458,42 @@ func MonitorAndAdjustPolicies(allowAdjust bool) {
 
 func main() {
 	allowAdjust := false
+	local := false
 	trace_name := ""
+	select_by := ""
+	sfs := false
 
 	flag.BoolVar(&allowAdjust, "allowAdjust", false, "allow adjust agent policy")
 	flag.StringVar(&trace_name, "trace", "test_tiny", "trace file name")
+	flag.StringVar(&select_by, "selectBy", "leastLoad", "select node by leastLoad, hash or random")
+	flag.BoolVar(&local, "local", false, "use localhost as agent")
+	flag.BoolVar(&sfs, "sfs", false, "only use sfs")
 	flag.Parse()
 
-	if allowAdjust {
+	if local {
+		nodeIPs = []string{"localhost"}
+	} else if allowAdjust {
 		nodeIPs = []string{"172.17.0.5", "172.17.0.6", "172.17.0.7", "172.17.0.8"}
 	} else {
 		nodeIPs = []string{"172.17.0.9", "172.17.0.10", "172.17.0.11", "172.17.0.12"}
 	}
 
+	var selectFunc SelectFunc
+	switch select_by {
+	case "leastLoad":
+		selectFunc = LeastLoaded
+	case "random":
+		selectFunc = RandomNode
+	case "hash":
+		selectFunc = HashNode
+	default:
+		log.Fatalln("wrong selectFunc:", select_by)
+	}
+
 	go MonitorAndAdjustPolicies(allowAdjust) // 调度策略监控
-	DispatchTasks(trace_name)                // 任务分发
+	traces := ReadTasksFromFile(trace_name)
+
+	DispatchTasks(traces, sfs, selectFunc) // 任务分发
 
 	fmt.Println("Dispatch finished.")
 	time.Sleep(5 * time.Second)
