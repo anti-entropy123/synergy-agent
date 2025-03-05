@@ -19,6 +19,9 @@ var (
 	policy   string
 	affinity string
 )
+var (
+	cache = make(chan PidI)
+)
 
 func main() {
 	var rLimit syscall.Rlimit
@@ -61,6 +64,10 @@ func main() {
 	CollectMetrics(cpuid) // 启动监控 Goroutine
 
 	http.HandleFunc("/get_status", status(cpuid)) // 注册 HTTP 端点
+
+	// start SFS scheduler
+	wg := sync.WaitGroup{}
+	go Scheduler(&wg, cache, affinity, 10000000)
 
 	fmt.Println("Starting server on :20251...")
 	err = http.ListenAndServe("0.0.0.0:20251", nil)
@@ -146,11 +153,6 @@ func runFunc(cpu int) func(http.ResponseWriter, *http.Request) {
 // }
 
 func testSFSWithTraces(cpu int, trace []Action, num int) {
-	wg := sync.WaitGroup{}
-	cache := make(chan PidI)
-	wg.Add(1)
-	go Scheduler(&wg, cache, cpu, num)
-
 	for i := 0; i < len(trace); i++ {
 		Send(trace[i], cache)
 		job := trace[i]
@@ -158,8 +160,6 @@ func testSFSWithTraces(cpu int, trace []Action, num int) {
 		new_pid := PidI{-10, job.JobName, job.Para1, job.Id, o, -3, trace[i].ConStart}
 		cache <- new_pid
 	}
-
-	wg.Wait()
 }
 
 // func testSFS(cpu int, source string) {

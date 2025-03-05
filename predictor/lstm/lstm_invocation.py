@@ -4,7 +4,9 @@ import torch.nn as nn
 import torch.optim as optim
 from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
-import json
+import time
+
+from qps_data_loader.loader import read_data, pw_zq_func_id, zq_tf_func_id, tf_zq_func_id, save_result, calc_error_rate
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
@@ -12,33 +14,6 @@ print(f"Using device: {device}")
 # 设置随机种子
 torch.manual_seed(42)
 np.random.seed(42)
-
-# 生成模拟时间序列数据（7天的分钟级调用量）
-time_steps = 7 * 1440  # 7天，每天1440分钟
-
-pw_zq_func_id = '5315be05fc3b21a3f483ed0759bce825764dcf8a762623a1d94ff63f9d9ce4cc'
-zq_tf_func_id = '660323aa6f1012c8eca3c7d8153cb436320b48ed84f82bf3e816b494ad8dfde2'
-tf_zq_func_id = 'f8c5d1ba78b7d2f4d2d2a0d8bbc31f0b93185edce1d0788fbc362f22bd931af2'
-
-func_to_qps = {}
-func_to_qps[pw_zq_func_id] = []
-func_to_qps[zq_tf_func_id] = []
-func_to_qps[tf_zq_func_id] = []
-
-def read_data():
-    file_pattern = "azure_data/az_hot_func_invocation_day_{:02d}.csv"
-    invoc_nums = []
-    for i in range(7):
-        file_name = file_pattern.format(i)
-        df = pd.read_csv(file_name, delimiter=",")
-        for line in df[:].iterrows():
-            fid = line[1]["HashFunction"]
-            if fid not in func_to_qps:
-                continue
-            
-            for seq in range(1440):
-                func_to_qps[fid].append(line[1][str(seq+1)])
-
 
 # LSTM 模型定义
 class LSTMModel(nn.Module):
@@ -86,6 +61,7 @@ def train_and_predict(invoc_nums):
     X_test, y_test = X_test.to(device), y_test.to(device)
 
     # 模型初始化
+    train_start = time.time()
     model = LSTMModel().to(device)
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=0.002)
@@ -106,37 +82,31 @@ def train_and_predict(invoc_nums):
             optimizer.step()
         print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.6f}")
 
+    train_time = time.time() - train_start
+    pred_start = time.time()
     # 预测
     model.eval()
     with torch.no_grad():
         predictions = model(X_test)
 
+    pred_time = time.time() - pred_start
+    
     # 反归一化
     predictions = scaler.inverse_transform(predictions.cpu().numpy())
     y_test_actual = scaler.inverse_transform(y_test.cpu().numpy())
     
-    return predictions, y_test_actual
+    return predictions, y_test_actual, train_time, pred_time
 
-def save_result(prefix, predictions, y_test_actual):
-    with open(f"./{prefix}_y_test_actual.json", "w") as f:
-        f.write(json.dumps(y_test_actual.tolist()))
 
-    with open(f"./{prefix}_predictions.json", "w") as f:
-        f.write(json.dumps(predictions.tolist()))
+func_to_qps = read_data()
 
-read_data()
+def test_lstm(func_label, func_id):
+    print(f"begin lstm_{func_label}")
+    predict, actual, t_time, p_time = train_and_predict(func_to_qps[func_id])
+    print(t_time, p_time)
+    calc_error_rate(f"lstm_{func_label}", predict, actual)
+    save_result(f'lstm_{func_label}', predict, actual)
 
-# print("begin pw_zq")
-# func_id = pw_zq_func_id
-# predict, actual = train_and_predict(func_to_qps[func_id])
-# save_result('pw_zq', predict, actual)
-
-print("begin zq_tf")
-func_id = zq_tf_func_id
-predict, actual = train_and_predict(func_to_qps[func_id])
-save_result('zq_tf', predict, actual)
-
-print("begin tf_zq")
-func_id = tf_zq_func_id
-predict, actual = train_and_predict(func_to_qps[func_id])
-save_result('tf_zq', predict, actual)
+test_lstm("pw_zq", pw_zq_func_id)
+test_lstm("zq_tf", zq_tf_func_id)
+test_lstm("tf_zq", tf_zq_func_id)

@@ -83,7 +83,8 @@ func Execute(job PidI, p string, pids chan PidI, core string, queue chan PidI, c
 	// fmt.Println("System CPU Time ", cmd.ProcessState.SysUsage().(*syscall.Rusage).Stime, job.Job)
 	new_pid.Credit = -2
 	pids <- new_pid
-	fmt.Println(job.Job, t2.Sub(t1).Milliseconds())
+
+	fmt.Println("SFS Execute", job.Job, t2.Sub(t1).Milliseconds())
 	// fmt.Println("logs TIME: ", job.Job, t1.Sub(start_time), t2.Sub(start_time))
 }
 

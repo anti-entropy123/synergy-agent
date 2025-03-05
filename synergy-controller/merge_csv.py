@@ -6,6 +6,10 @@ def merge_and_calculate_avg(csv_files, output_file):
     
     # 读取所有 CSV 文件并合并
     for file in csv_files:
+        with open(file, "r") as f:
+            if not f.read():
+                return
+
         df = pd.read_csv(file)
         all_data.append(df)
     

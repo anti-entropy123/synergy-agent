@@ -1,41 +1,41 @@
 import matplotlib.pyplot as plt
 import json
-
 from qps_data_loader.loader import calc_error_rate
+
 
 # 可视化结果
 plt.figure(figsize=(10, 5))
-plt.title("lstm")
+plt.title("arima")
 
-with open("./results/lstm_pw_zq_y_test_actual.json", "r") as f:
+with open("./results/arima_pw_zq_y_test_actual.json", "r") as f:
     y_test_actual = json.loads(f.read())
     plt.plot(y_test_actual, label="pw_zq_actual", linestyle='--', zorder=10)
 
-with open("./results/lstm_pw_zq_predictions.json", "r") as f:
+with open("./results/arima_pw_zq_predictions.json", "r") as f:
     predictions = json.loads(f.read())
     plt.plot(predictions, label="pw_zq_predict")
 
-calc_error_rate("lstm_pw_zq", y_test_actual, predictions)
+calc_error_rate("arima_pw_zq", y_test_actual, predictions)
 
-# with open("./results/lstm_tf_zq_y_test_actual.json", "r") as f:
+# with open("./results/arima_tf_zq_y_test_actual.json", "r") as f:
 #     y_test_actual = json.loads(f.read())
 #     plt.plot(y_test_actual, label="tf_zq_actual", linestyle='--', zorder=10)
 
-# with open("./results/lstm_tf_zq_predictions.json", "r") as f:
+# with open("./results/arima_tf_zq_predictions.json", "r") as f:
 #     predictions = json.loads(f.read())
 #     plt.plot(predictions, label="tf_zq_predict")
 
-# calc_error_rate("lstm_tf_zq", y_test_actual, predictions)
+# calc_error_rate("arima_tf_zq", y_test_actual, predictions)
 
-# with open("./results/lstm_zq_tf_y_test_actual.json", "r") as f:
+# with open("./results/arima_zq_tf_y_test_actual.json", "r") as f:
 #     y_test_actual = json.loads(f.read())
 #     plt.plot(y_test_actual, label="zq_tf_actual", linestyle='--', zorder=10)
 
-# with open("./results/lstm_zq_tf_predictions.json", "r") as f:
+# with open("./results/arima_zq_tf_predictions.json", "r") as f:
 #     predictions = json.loads(f.read())
 #     plt.plot(predictions, label="zq_tf_predict")
 
-# calc_error_rate("lstm_zq_tf", y_test_actual, predictions)
+# calc_error_rate("arima_zq_tf", y_test_actual, predictions)
 
 plt.legend()
-plt.savefig("./lstm/lstm_output.pdf")
+plt.savefig("./arima/arima_output.pdf")

@@ -83,6 +83,13 @@ func receive(in chan PidI, queue chan PidI, core string, wg *sync.WaitGroup, num
 				jobs[x.Id] = 0
 				credits[x.Id] = -2
 				num_job += 1
+
+				t0, err := time.ParseInLocation("2006-01-02 15:04:05.000", x.t0, time.Local)
+				if err != nil {
+					fmt.Printf("parse conStart failed, err=%v\n", err)
+					panic(err)
+				}
+				fmt.Println(x.Job, time.Now().Sub(t0).Milliseconds())
 				//fmt.Println("nums", num_job)
 				if num_job >= num {
 					fmt.Println(num, num_job)
@@ -263,7 +270,7 @@ func UpdateCFScore(direct int, cfs_value int64, update_v int) int64 { //更新CF
 	}
 }
 
-func (q *Queue) Schedule(actions RWMap, cache chan PidI, in chan PidI, out chan PidI, cfs_chan chan PidI, cpu int, ts *Threshold) {
+func (q *Queue) Schedule(actions RWMap, cache chan PidI, in chan PidI, out chan PidI, cfs_chan chan PidI, affinity string, ts *Threshold) {
 	//每个CPU核心的协程执行相应Queue的Schedule方法
 	on := 1
 	count := 0
@@ -375,7 +382,7 @@ func (q *Queue) Schedule(actions RWMap, cache chan PidI, in chan PidI, out chan 
 			} else {
 				//UpdateFunc(x.Pid, q.Core, "20")
 				fmt.Println("切cfs", x.Job)
-				go SwitchFunc(x.Pid, GetCFSCpuCores(cpu))
+				go SwitchFunc(x.Pid, affinity)
 				cfs_chan <- x
 				if jobs[x.Id] != 2 {
 					//4 means cfs state
@@ -416,7 +423,7 @@ func HandleCFSChan(actions RWMap, in chan PidI, m map[string]int, cfs_value int6
 	}
 }
 
-func Scheduler(wg *sync.WaitGroup, cache chan PidI, cpu int, num int) { //一个核，一个队列，一个Schedule方法
+func Scheduler(wg *sync.WaitGroup, cache chan PidI, affinity string, num int) { //一个核，一个队列，一个Schedule方法
 	defer wg.Done()                //（无论是正常结束还是出现 panic），WaitGroup 中的计数器减一
 	wg_receive := sync.WaitGroup{} //等待协程完成
 	var rLimit syscall.Rlimit
@@ -436,20 +443,20 @@ func Scheduler(wg *sync.WaitGroup, cache chan PidI, cpu int, num int) { //一个
 	ts_instance := Threshold{20} //20仅初始化Threshold结构体实例，后续根据任务处理情况动态调整
 	//layer 1
 	var queues [1024]Queue //数组中每个元素都是一个Queue类型结构体，创建1024个队列，每个队列都有不同核心、执行长度、最后一层标志、状态更新值、第一层标志
-	for i := 0; i < cpu; i++ {
+	for i := 0; i < 1; i++ {
 		// fmt.Println("logs cpu", i)
 		queues[i] = Queue{GetFifoCpuSingleCpu(i), 20, 1, 1, 1} //这里是赋值给type Queue struct,20是最大队列值
 	}
-	for i := 0; i < cpu; i++ {
+	for i := 0; i < 1; i++ {
 		// fmt.Println("logs cpu", i)
 		//每个协程运行一个CPU核心对应的调度队列，独立协程执行Schedule方法
-		go queues[i].Schedule(con_actions, cache, chan1, chan2, cfs_chan, cpu, &ts_instance)
+		go queues[i].Schedule(con_actions, cache, chan1, chan2, cfs_chan, affinity, &ts_instance)
 	}
 	go HandleCFSChan(con_actions, cfs_chan, con_map, int64(2))
 	wg_receive.Add(1)
-	go receive(cache, chan1, GetCFSCpuCores(cpu), &wg_receive, num, tsChan, &ts_instance)
-	go ts_instance.AdjustThreshold(tsChan, 200, cpu) //将中间传入的参数period设置很大就不会在高负载时发生时间片的动态更改
-	go boostSleepingJobs(chan1)
+	go receive(cache, chan1, GetCFSCpuCores(1), &wg_receive, num, tsChan, &ts_instance)
+	go ts_instance.AdjustThreshold(tsChan, 200, 1) //将中间传入的参数period设置很大就不会在高负载时发生时间片的动态更改
+	// go boostSleepingJobs(chan1)
 	//go boostCFSJobs(chan1, 20000, tsChan)
 	wg_receive.Wait()
 
