@@ -132,7 +132,7 @@ comp_turnaround: export_agent_log gen_csv
 send_reqs trace='test_tiny':
     curl -X POST -H "Content-Type: text/plain" --data-binary @synergy-controller/{{trace}} http://localhost:20251/set_reqs
 
-run_controller trace_file="test_tiny":
+run_controller trace_file="test_tiny" schedu_arg="--allowAdjust --partition":
     #!/usr/bin/bash
     
     just reset_policy
@@ -143,10 +143,9 @@ run_controller trace_file="test_tiny":
     export trace_file={{trace_file}}
 
     date '+%s.%N'
-    ./scheduler --allowAdjust --trace $trace_file {{console_redirect}}
+    ./scheduler {{schedu_arg}} --trace $trace_file {{console_redirect}}
     date '+%s.%N'
-    ./scheduler --trace $trace_file {{console_redirect}}
-    date '+%s.%N'
+
     just export_agent_log
 
 run_predictor:
@@ -156,337 +155,244 @@ run_predictor:
     # scp yjn@192.168.1.183:/home/yjn/synergy-agent/predictor/result.pdf predictor/lstm/lstm_output.pdf
     scp yjn@192.168.1.183:/home/yjn/synergy-agent/predictor/*.json ./predictor/results/
 
+wait_ack_htop:
+    #!/usr/bin/bash
+
+    read -p "检查 htop 后继续: "
+
+export_results label:
+    -rm -r synergy-controller/export/result_{{label}}
+    mkdir -p synergy-controller/export/result_{{label}} && cp -r synergy-controller/result synergy-controller/export/result_{{label}}
+
 run_synergy_CDF:
-    echo "run_Synergy_CDF_20-600 开始执行。"
-    # run_Synergy_CDF_20-600:
-    just reset_policy
-    just clear_log
-    ./synergy-controller/scheduler --allowAdjust --partition --selectBy leastLoad --trace synergy-controller/test_data/20-600
-    sleep 2
+    @echo "run_Synergy_CDF_20-600 开始执行。"
+    # test_data/20-600
+    # agent 1-4
+    just run_controller 'test_data/20-600' '--allowAdjust --partition --selectBy leastLoad'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export/result_Synergy_CDF_20-600
-    mkdir -p export && mkdir -p synergy-controller/export/result_Synergy_CDF_20-600 && cp -r synergy-controller/result  synergy-controller/export/result_Synergy_CDF_20-600
-    echo "run_Synergy_CDF_20-600 执行完成。"
+    just export_results 'Synergy_CDF_20-600'
+    @echo "run_Synergy_CDF_20-600 执行完成。"
 
-    echo "------------------------------\n"
+    @echo "run_Synergy_CDF_30-300 开始执行。"
+    just run_controller 'test_data/30-300' '--allowAdjust --partition --selectBy leastLoad'
+    just wait_ack_htop
+    just comp_turnaround
+    just export_results 'Synergy_CDF_30-300'
+    @echo "run_Synergy_CDF_30-300 执行完成。"
 
-    echo "run_Synergy_CDF_30-300 开始执行。"
-    # run_Synergy_CDF_30-300:
-    just reset_policy
-    just clear_log
-    sleep 2
-    ./synergy-controller/scheduler --allowAdjust --partition --selectBy leastLoad --trace synergy-controller/test_data/30-300
-    sleep 2
+    @echo "run_Synergy_CDF_40-200 开始执行。"
+    just run_controller 'test_data/40-200' '--allowAdjust --partition --selectBy leastLoad'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export/result_Synergy_CDF_30-300
-    mkdir -p export && mkdir -p synergy-controller/export/result_Synergy_CDF_30-300 && cp -r synergy-controller/result  synergy-controller/export/result_Synergy_CDF_30-300
-    echo "run_Synergy_CDF_30-300 执行完成。"
-    
-    echo "run_Synergy_CDF_40-200 开始执行。"
-    # run_Synergy_CDF_40-200:
-    just reset_policy
-    just clear_log
-    sleep 2
-    ./synergy-controller/scheduler --allowAdjust --partition --selectBy leastLoad --trace synergy-controller/test_data/40-200
-    sleep 2
-    just comp_turnaround
-    rm -r synergy-controller/export/result_Synergy_CDF_40-200
-    mkdir -p export && mkdir -p synergy-controller/export/result_Synergy_CDF_40-200 && cp -r synergy-controller/result  synergy-controller/export/result_Synergy_CDF_40-200
-    echo "run_Synergy_CDF_40-200 执行完成。"
+    just export_results 'Synergy_CDF_40-200'
+    @echo "run_Synergy_CDF_40-200 执行完成。"
 
 run_OpenWhisk_CDF:
-    echo "run_OpenWhisk_CDF_20-600 开始执行。"
-    # run_OpenWhisk_CDF_20-600:
-    # 分区改为CFS
-    just reset_policy
-    just clear_log
-    ./synergy-controller/scheduler --selectBy hash --trace synergy-controller/test_data/20-600
-    sleep 2
+    @echo "run_OpenWhisk_CDF_20-600 开始执行。"
+    # test_data/20-600
+    # agent 1-4
+    just run_controller 'test_data/20-600' '--selectBy hash'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export/result_OpenWhisk_CDF_20-600
-    mkdir -p export && mkdir -p synergy-controller/export/result_OpenWhisk_CDF_20-600 && cp -r synergy-controller/result  synergy-controller/export/result_OpenWhisk_CDF_20-600
-    echo "run_OpenWhisk_CDF_20-600 执行完成。"
+    just export_results 'OpenWhisk_CDF_20-600'
+    @echo "run_OpenWhisk_CDF_20-600 执行完成。"
 
-    echo "------------------------------\n"
+    @echo "run_OpenWhisk_CDF_30-300 开始执行。"
+    just run_controller 'test_data/30-300' '--selectBy hash'
+    just wait_ack_htop
+    just comp_turnaround
+    just export_results 'OpenWhisk_CDF_30-300'
+    @echo "run_OpenWhisk_CDF_30-300 执行完成。"
 
-    echo "run_OpenWhisk_CDF_30-300 开始执行。"
-    # run_OpenWhisk_CDF_30-300:
-    just reset_policy
-    just clear_log
-    sleep 2
-    ./synergy-controller/scheduler --selectBy hash --trace synergy-controller/test_data/30-300
-    sleep 2
+    @echo "run_OpenWhisk_CDF_40-200 开始执行。"
+    just run_controller 'test_data/40-200' '--selectBy hash'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export/result_OpenWhisk_CDF_30-300
-    mkdir -p export && mkdir -p synergy-controller/export/result_OpenWhisk_CDF_30-300 && cp -r synergy-controller/result  synergy-controller/export/result_OpenWhisk_CDF_30-300
-    echo "run_OpenWhisk_CDF_30-300 执行完成。"
-    
-    echo "run_OpenWhisk_CDF_40-200 开始执行。"
-    # run_OpenWhisk_CDF_40-200:
-    just reset_policy
-    just clear_log
-    sleep 2
-    ./synergy-controller/scheduler --selectBy hash --trace synergy-controller/test_data/40-200
-    sleep 2
-    just comp_turnaround
-    rm -r synergy-controller/export/result_OpenWhisk_CDF_40-200
-    mkdir -p export && mkdir -p synergy-controller/export/result_OpenWhisk_CDF_40-200 && cp -r synergy-controller/result  synergy-controller/export/result_OpenWhisk_CDF_40-200
-    echo "run_OpenWhisk_CDF_40-200 执行完成。"
+    just export_results 'OpenWhisk_CDF_40-200'
+    @echo "run_OpenWhisk_CDF_40-200 执行完成。"
 
-run_OpenFaaS_CDF1:
-    echo "run_OpenFaaS_CDF_20-600 开始执行。"
-    # run_OpenFaaS_CDF_20-600:
-    # 分区改为CFS
-    just reset_policy
-    just clear_log
-    ./synergy-controller/scheduler --selectBy random --trace synergy-controller/test_data/20-600
-    sleep 2
+run_OpenFaaS_CDF:
+    @echo "run_OpenFaaS_CDF_20-600 开始执行。"
+    # test_data/20-600
+    # agent 1-4
+    just run_controller 'test_data/20-600' '--selectBy random'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export/result_OpenFaaS_CDF_20-600
-    mkdir -p export && mkdir -p synergy-controller/export/result_OpenFaaS_CDF_20-600 && cp -r synergy-controller/result  synergy-controller/export/result_OpenFaaS_CDF_20-600
-    echo "run_OpenFaaS_CDF_20-600 执行完成。"
+    just export_results 'OpenFaaS_CDF_20-600'
+    @echo "run_OpenFaaS_CDF_20-600 执行完成。"
 
-run_OpenFaaS_CDF2:
-    echo "run_OpenFaaS_CDF_30-300 开始执行。"
-    # run_OpenFaaS_CDF_30-300:
-    just reset_policy
-    just clear_log
-    sleep 2
-    ./synergy-controller/scheduler --selectBy random --trace synergy-controller/test_data/30-300
-    sleep 2
+    @echo "run_OpenFaaS_CDF_30-300 开始执行。"
+    just run_controller 'test_data/30-300' '--selectBy random'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export/result_OpenFaaS_CDF_30-300
-    mkdir -p export && mkdir -p synergy-controller/export/result_OpenFaaS_CDF_30-300 && cp -r synergy-controller/result  synergy-controller/export/result_OpenFaaS_CDF_30-300
-    echo "run_OpenFaaS_CDF_30-300 执行完成。"
+    just export_results 'OpenFaaS_CDF_30-300'
+    @echo "run_OpenFaaS_CDF_30-300 执行完成。"
 
-run_OpenFaaS_CDF3:   
-    echo "run_OpenFaaS_CDF_40-200 开始执行。"
-    # run_OpenFaaS_CDF_40-200:
-    just reset_policy
-    just clear_log
-    sleep 2
-    ./synergy-controller/scheduler --selectBy random --trace synergy-controller/test_data/40-200
-    sleep 2
+    @echo "run_OpenFaaS_CDF_40-200 开始执行。"
+    just run_controller 'test_data/40-200' '--selectBy random'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export/result_OpenFaaS_CDF_40-200
-    mkdir -p export && mkdir -p synergy-controller/export/result_OpenFaaS_CDF_40-200 && cp -r synergy-controller/result  synergy-controller/export/result_OpenFaaS_CDF_40-200
-    echo "run_OpenFaaS_CDF_40-200 执行完成。"
+    just export_results 'OpenFaaS_CDF_40-200'
+    @echo "run_OpenFaaS_CDF_40-200 执行完成。"
 
 run_SFS_CDF:
-    echo "run_SFS_CDF_20-600 开始执行。"
-    # run_SFS_CDF_20-600:
-    # 分区改为CFS
-    just reset_policy
-    just clear_log
-    ./synergy-controller/scheduler --selectBy hash --trace synergy-controller/test_data/20-600
-    sleep 2
+    @echo "run_SFS_CDF_20-600 开始执行。"
+    # test_data/20-600
+    # agent 1-4
+    just run_controller 'test_data/20-600' '--selectBy hash'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export/result_SFS_CDF_20-600
-    mkdir -p export && mkdir -p synergy-controller/export/result_SFS_CDF_20-600 && cp -r synergy-controller/result  synergy-controller/export/result_SFS_CDF_20-600
-    echo "run_SFS_CDF_20-600 执行完成。"
+    just export_results 'SFS_CDF_20-600'
+    @echo "run_SFS_CDF_20-600 执行完成。"
 
-    echo "------------------------------\n"
+    @echo "run_SFS_CDF_30-300 开始执行。"
+    just run_controller 'test_data/30-300' '--selectBy hash'
+    just wait_ack_htop
+    just comp_turnaround
+    just export_results 'SFS_CDF_30-300'
+    @echo "run_SFS_CDF_30-300 执行完成。"
 
-    echo "run_SFS_CDF_30-300 开始执行。"
-    # run_SFS_CDF_30-300:
-    just reset_policy
-    just clear_log
-    sleep 2
-    ./synergy-controller/scheduler --selectBy hash --trace synergy-controller/test_data/30-300
-    sleep 2
+    @echo "run_SFS_CDF_40-200 开始执行。"
+    just run_controller 'test_data/40-200' '--selectBy hash'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export/result_SFS_CDF_30-300
-    mkdir -p export && mkdir -p synergy-controller/export/result_SFS_CDF_30-300 && cp -r synergy-controller/result  synergy-controller/export/result_SFS_CDF_30-300
-    echo "run_SFS_CDF_30-300 执行完成。"
-    
-    echo "run_SFS_CDF_40-200 开始执行。"
-    # run_SFS_CDF_40-200:
-    just reset_policy
-    just clear_log
-    sleep 2
-    ./synergy-controller/scheduler --selectBy hash --trace synergy-controller/test_data/40-200
-    sleep 2
-    just comp_turnaround
-    rm -r synergy-controller/export/result_SFS_CDF_40-200
-    mkdir -p export && mkdir -p synergy-controller/export/result_SFS_CDF_40-200 && cp -r synergy-controller/result  synergy-controller/export/result_SFS_CDF_40-200
-    echo "run_SFS_CDF_40-200 执行完成。"
+    just export_results 'SFS_CDF_40-200'
+    @echo "run_SFS_CDF_40-200 执行完成。"
 
 run_synergy_CDF_no_allowAdjust:
-    echo "run_Synergy_CDF_no_allowAdjust_20-600 开始执行。"
-    # run_Synergy_CDF_no_allowAdjust_20-600:
-    just reset_policy
-    just clear_log
-    ./synergy-controller/scheduler --partition --selectBy leastLoad --trace synergy-controller/test_data/20-600
-    sleep 2
+    @echo "run_Synergy_CDF_no_allowAdjust_20-600 开始执行。"
+    # test_data/20-600
+    # agent 1-4
+    just run_controller 'test_data/20-600' '--partition --selectBy leastLoad'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export/result_Synergy_CDF_no_allowAdjust_20-600
-    mkdir -p export && mkdir -p synergy-controller/export/result_Synergy_CDF_no_allowAdjust_20-600 && cp -r synergy-controller/result  synergy-controller/export/result_Synergy_CDF_no_allowAdjust_20-600
-    echo "run_Synergy_CDF_no_allowAdjust_20-600 执行完成。"
+    just export_results 'Synergy_no_allowAdjust_CDF_20-600'
+    @echo "run_Synergy_CDF_no_allowAdjust_20-600 执行完成。"
 
-    echo "------------------------------\n"
+    @echo "run_Synergy_CDF_no_allowAdjust_30-300 开始执行。"
+    just run_controller 'test_data/30-300' '--partition --selectBy leastLoad'
+    just wait_ack_htop
+    just comp_turnaround
+    just export_results 'Synergy_no_allowAdjust_CDF_30-300'
+    @echo "run_Synergy_CDF_no_allowAdjust_30-300 执行完成。"
 
-    echo "run_Synergy_CDF_no_allowAdjust_30-300 开始执行。"
-    # run_Synergy_CDF_no_allowAdjust_30-300:
-    just reset_policy
-    just clear_log
-    sleep 2
-    ./synergy-controller/scheduler --partition --selectBy leastLoad --trace synergy-controller/test_data/30-300
-    sleep 2
+    @echo "run_Synergy_CDF_no_allowAdjust_40-200 开始执行。"
+    just run_controller 'test_data/40-200' '--partition --selectBy leastLoad'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export/result_Synergy_no_allowAdjust_CDF_30-300
-    mkdir -p export && mkdir -p synergy-controller/export/result_Synergy_CDF_no_allowAdjust_30-300 && cp -r synergy-controller/result  synergy-controller/export/result_Synergy_CDF_no_allowAdjust_30-300
-    echo "run_Synergy_CDF_no_allowAdjust_30-300 执行完成。"
-    
-    echo "run_Synergy_CDF_no_allowAdjust_40-200 开始执行。"
-    # run_Synergy_CDF_no_allowAdjust_40-200:
-    just reset_policy
-    just clear_log
-    sleep 2
-    ./synergy-controller/scheduler --partition --selectBy leastLoad --trace synergy-controller/test_data/40-200
-    sleep 2
-    just comp_turnaround
-    rm -r synergy-controller/export/result_Synergy_CDF_no_allowAdjust_40-200
-    mkdir -p export && mkdir -p synergy-controller/export/result_Synergy_CDF_no_allowAdjust_40-200 && cp -r synergy-controller/result  synergy-controller/export/result_Synergy_CDF_no_allowAdjust_40-200
-    echo "run_Synergy_CDF_no_allowAdjust_40-200 执行完成。"
+    just export_results 'Synergy_no_allowAdjust_CDF_40-200'
+    @echo "run_Synergy_CDF_no_allowAdjust_40-200 执行完成。"
 
 run_ffff_synergy_CDF:
-    echo "run_ffff_Synergy_CDF_20-600 开始执行。"
-    # run_ffff_Synergy_CDF_20-600:
-    just reset_policy
-    just clear_log
-    ./synergy-controller/scheduler --allowAdjust --partition --selectBy leastLoad --trace synergy-controller/test_data/20-600
-    sleep 2
+    @echo "run_ffff_Synergy_CDF_20-600 开始执行。"
+    # test_data/20-600
+    # agent 1-4
+    just run_controller 'test_data/20-600' '--allowAdjust --partition --selectBy leastLoad'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export/result_ffff_Synergy_CDF_20-600
-    mkdir -p export && mkdir -p synergy-controller/export/result_ffff_Synergy_CDF_20-600 && cp -r synergy-controller/result  synergy-controller/export/result_ffff_Synergy_CDF_20-600
-    echo "run_ffff_Synergy_CDF_20-600 执行完成。"
+    just export_results 'ffff_Synergy_CDF_20-600'
+    @echo "run_ffff_Synergy_CDF_20-600 执行完成。"
 
-    echo "------------------------------\n"
+    @echo "run_ffff_Synergy_CDF_30-300 开始执行。"
+    just run_controller 'test_data/30-300' '--allowAdjust --partition --selectBy leastLoad'
+    just wait_ack_htop
+    just comp_turnaround
+    just export_results 'ffff_Synergy_CDF_30-300'
+    @echo "run_ffff_Synergy_CDF_30-300 执行完成。"
 
-    echo "run_ffff_Synergy_CDF_30-300 开始执行。"
-    # run_ffff_Synergy_CDF_30-300:
-    just reset_policy
-    just clear_log
-    sleep 2
-    ./synergy-controller/scheduler --allowAdjust --partition --selectBy leastLoad --trace synergy-controller/test_data/30-300
-    sleep 2
+    @echo "run_ffff_Synergy_CDF_40-200 开始执行。"
+    just run_controller 'test_data/40-200' '--allowAdjust --partition --selectBy leastLoad'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export/result_ffff_Synergy_CDF_30-300
-    mkdir -p export && mkdir -p synergy-controller/export/result_ffff_Synergy_CDF_30-300 && cp -r synergy-controller/result  synergy-controller/export/result_ffff_Synergy_CDF_30-300
-    echo "run_ffff_Synergy_CDF_30-300 执行完成。"
-    
-    echo "run_ffff_Synergy_CDF_40-200 开始执行。"
-    # run_ffff_Synergy_CDF_40-200:
-    just reset_policy
-    just clear_log
-    sleep 2
-    ./synergy-controller/scheduler --allowAdjust --partition --selectBy leastLoad --trace synergy-controller/test_data/40-200
-    sleep 2
-    just comp_turnaround
-    rm -r synergy-controller/export/result_ffff_Synergy_CDF_40-200
-    mkdir -p export && mkdir -p synergy-controller/export/result_ffff_Synergy_CDF_40-200 && cp -r synergy-controller/result  synergy-controller/export/result_ffff_Synergy_CDF_40-200
-    echo "run_ffff_Synergy_CDF_40-200 执行完成。"
+    just export_results 'ffff_Synergy_CDF_40-200'
+    @echo "run_ffff_Synergy_CDF_40-200 执行完成。"
 
-run_synergy_CDF_hw:
-    echo "run_Synergy_CDF_hw 开始执行。"
-    # run_Synergy_CDF_hw:
-    just reset_policy
-    just clear_log
-    ./synergy-controller/scheduler --allowAdjust --partition --selectBy leastLoad --trace synergy-controller/test_data/hw.csv
-    sleep 2
-    just comp_turnaround
-    sleep 2
-    rm -r synergy-controller/export2/result_Synergy_CDF_hw
-    mkdir -p export2 && mkdir -p synergy-controller/export2/result_Synergy_CDF_hw && cp -r synergy-controller/result  synergy-controller/export2/result_Synergy_CDF_hw
-    echo "run_Synergy_CDF_hw 执行完成。"
 
-run_synergy_CDF_wr:
-    echo "run_Synergy_CDF_wr 开始执行。"
-    # run_Synergy_CDF_wr:
-    just reset_policy
-    just clear_log
-    sleep 2
-    ./synergy-controller/scheduler --allowAdjust --partition --selectBy leastLoad --trace synergy-controller/test_data/wr.csv
-    sleep 2
+run_Synergy_CDF_hw:
+    # just run_Synergy_CDF_hw > export/Synergy_CDF_hw.log
+    @echo "run_Synergy_CDF_hw 开始执行。"
+    # test_data/20-600
+    # agent 1-4
+    just run_controller 'test_data/hw.csv' '--allowAdjust --partition --selectBy leastLoad'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export2/result_Synergy_CDF_wr
-    mkdir -p export2 && mkdir -p synergy-controller/export2/result_Synergy_CDF_wr && cp -r synergy-controller/result  synergy-controller/export2/result_Synergy_CDF_wr
-    echo "run_Synergy_CDF_wr 执行完成。"
+    just export_results 'Synergy_CDF_hw'
+    @echo "run_Synergy_CDF_hw 执行完成。"
+
+run_Synergy_CDF_wr:
+    # just run_Synergy_CDF_wr > export/Synergy_CDF_wr.log
+    @echo "run_Synergy_CDF_wr 开始执行。"
+    # test_data/20-600
+    # agent 1-4
+    just run_controller 'test_data/wr.csv' '--allowAdjust --partition --selectBy leastLoad'
+    just wait_ack_htop
+    just comp_turnaround
+    just export_results 'Synergy_CDF_wr'
+    @echo "run_Synergy_CDF_wr 执行完成。"
 
 run_OpenWhisk_CDF_hw:
-    echo "run_OpenWhisk_CDF_hw 开始执行。"
-    # run_OpenWhisk_CDF_hw:
-    # 分区改为CFS
-    just reset_policy
-    just clear_log
-    ./synergy-controller/scheduler --selectBy hash --trace synergy-controller/test_data/hw.csv
-    sleep 2
+    # just run_OpenWhisk_CDF_hw > export/OpenWhisk_CDF_hw.log
+    @echo "run_OpenWhisk_CDF_hw 开始执行。"
+    # test_data/20-600
+    # agent 1-4
+    just run_controller 'test_data/hw.csv' '--selectBy hash'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export2/result_OpenWhisk_CDF_hw
-    mkdir -p export2 && mkdir -p synergy-controller/export2/result_OpenWhisk_CDF_hw && cp -r synergy-controller/result  synergy-controller/export2/result_OpenWhisk_CDF_hw
-    echo "run_OpenWhisk_CDF_hw 执行完成。"
+    just export_results 'OpenWhisk_CDF_hw'
+    @echo "run_OpenWhisk_CDF_hw 执行完成。"
 
 run_OpenWhisk_CDF_wr:
-    echo "run_OpenWhisk_CDF_wr 开始执行。"
-    # run_OpenWhisk_CDF_wr:
-    just reset_policy
-    just clear_log
-    sleep 2
-    ./synergy-controller/scheduler --selectBy hash --trace synergy-controller/test_data/wr.csv
-    sleep 2
+    # just run_OpenWhisk_CDF_wr > export/OpenWhisk_CDF_wr.log
+    @echo "run_OpenWhisk_CDF_wr 开始执行。"
+    # test_data/20-600
+    # agent 1-4
+    just run_controller 'test_data/wr.csv' '--selectBy hash'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export2/result_OpenWhisk_CDF_wr
-    mkdir -p export2 && mkdir -p synergy-controller/export2/result_OpenWhisk_CDF_wr && cp -r synergy-controller/result  synergy-controller/export2/result_OpenWhisk_CDF_wr
-    echo "run_OpenWhisk_CDF_wr 执行完成。"
+    just export_results 'OpenWhisk_CDF_wr'
+    @echo "run_OpenWhisk_CDF_wr 执行完成。"
 
 run_OpenFaaS_CDF_hw:
-    echo "run_OpenFaaS_CDF_hw 开始执行。"
-    # run_OpenFaaS_CDF_hw:
-    # 分区改为CFS
-    just reset_policy
-    just clear_log
-    ./synergy-controller/scheduler --selectBy random --trace synergy-controller/test_data/hw.csv
-    sleep 2
+    # just run_OpenFaaS_CDF_hw > export/OpenFaaS_CDF_hw.log
+    @echo "run_OpenFaaS_CDF_hw 开始执行。"
+    # test_data/20-600
+    # agent 1-4
+    just run_controller 'test_data/hw.csv' '--selectBy random'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export2/result_OpenFaaS_CDF_hw
-    mkdir -p export2 && mkdir -p synergy-controller/export2/result_OpenFaaS_CDF_hw && cp -r synergy-controller/result  synergy-controller/export2/result_OpenFaaS_CDF_hw
-    echo "run_OpenFaaS_CDF_hw 执行完成。"
+    just export_results 'OpenFaaS_CDF_hw'
+    @echo "run_OpenFaaS_CDF_hw 执行完成。"
 
 run_OpenFaaS_CDF_wr:
-    echo "run_OpenFaaS_CDF_wr 开始执行。"
-    # run_OpenFaaS_CDF_wr:
-    just reset_policy
-    just clear_log
-    sleep 2
-    ./synergy-controller/scheduler --selectBy random --trace synergy-controller/test_data/wr.csv
-    sleep 2
+    # just run_OpenFaaS_CDF_wr > export/OpenFaaS_CDF_wr.log
+    @echo "run_OpenFaaS_CDF_wr 开始执行。"
+    # test_data/20-600
+    # agent 1-4
+    just run_controller 'test_data/wr.csv' '--selectBy random'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export2/result_OpenFaaS_CDF_wr
-    mkdir -p export2 && mkdir -p synergy-controller/export2/result_OpenFaaS_CDF_wr && cp -r synergy-controller/result  synergy-controller/export2/result_OpenFaaS_CDF_wr
-    echo "run_OpenFaaS_CDF_wr 执行完成。"
+    just export_results 'OpenFaaS_CDF_wr'
+    @echo "run_OpenFaaS_CDF_wr 执行完成。"
 
 run_SFS_CDF_hw:
-    echo "run_SFS_CDF_hw 开始执行。"
-    # run_SFS_CDF_hw:
-    # 分区改为CFS
-    just reset_policy
-    just clear_log
-    ./synergy-controller/scheduler --selectBy hash --trace synergy-controller/test_data/hw.csv
-    sleep 2
+    # just run_SFS_CDF_hw > export/SFS_CDF_hw.log
+    @echo "run_SFS_CDF_hw 开始执行。"
+    # test_data/20-600
+    # agent 1-4
+    just run_controller 'test_data/hw.csv' '--selectBy hash'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export2/result_SFS_CDF_hw
-    mkdir -p export2 && mkdir -p synergy-controller/export2/result_SFS_CDF_hw && cp -r synergy-controller/result  synergy-controller/export2/result_SFS_CDF_hw
-    echo "run_SFS_CDF_hw 执行完成。"
+    just export_results 'SFS_CDF_hw'
+    @echo "run_SFS_CDF_hw 执行完成。"
 
 run_SFS_CDF_wr:
-    echo "run_SFS_CDF_wr 开始执行。"
-    # run_SFS_CDF_wr:
-    just reset_policy
-    just clear_log
-    sleep 2
-    ./synergy-controller/scheduler --selectBy hash --trace synergy-controller/test_data/wr.csv
-    sleep 2
+    # just run_SFS_CDF_wr > export/SFS_CDF_wr.log
+    @echo "run_SFS_CDF_wr 开始执行。"
+    # test_data/20-600
+    # agent 1-4
+    just run_controller 'test_data/wr.csv' '--selectBy hash'
+    just wait_ack_htop
     just comp_turnaround
-    rm -r synergy-controller/export2/result_SFS_CDF_wr
-    mkdir -p export2 && mkdir -p synergy-controller/export2/result_SFS_CDF_wr && cp -r synergy-controller/result  synergy-controller/export2/result_SFS_CDF_wr
-    echo "run_SFS_CDF_wr0 执行完成。"
+    just export_results 'SFS_CDF_wr'
+    @echo "run_SFS_CDF_wr 执行完成。"

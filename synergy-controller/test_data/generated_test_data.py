@@ -58,7 +58,7 @@ ratios = {
 # }
 
 # 计算每个数值对应的数量
-total_samples = 500
+total_samples = 100
 counts = {k: int(v / 100 * total_samples) for k, v in ratios.items()}
 
 # 确保总数为 1000，调整误差
@@ -79,23 +79,23 @@ data = []
 index = 1
 
 # 按照顺序生成
-for value, count in counts.items():
-    for _ in range(count):
-        data.append([f"fib{index}", "fib.py", value, 0, index])  # 第三列按照比例分配，最后一列从1递增
-        index += 1
-
-# # 将所有的 Line（第三列）值按照占比要求生成
-# lines = []
 # for value, count in counts.items():
 #     for _ in range(count):
-#         lines.append(value)
+#         data.append([f"fib{index}", "fib.py", value, 0, index])  # 第三列按照比例分配，最后一列从1递增
+#         index += 1
 
-# # 打乱第三列数据
-# random.shuffle(lines)
+# 将所有的 Line（第三列）值按照占比要求生成
+lines = []
+for value, count in counts.items():
+    for _ in range(count):
+        lines.append(value)
 
-# # 根据打乱后的数据生成对应的数据行
-# for i in range(total_samples):
-#     data.append([f"fib{i+1}", "fib.py", lines[i], 0, i+1])  # 第三列打乱，最后一列从1递增
+# 打乱第三列数据
+random.shuffle(lines)
+
+# 根据打乱后的数据生成对应的数据行
+for i in range(total_samples):
+    data.append([f"fib{i+1}", "fib.py", lines[i], 0, i+1])  # 第三列打乱，最后一列从1递增
 
 # 转换为 DataFrame
 df = pd.DataFrame(data, columns=["ID", "Script", "Line", "Arg1", "Arg2"])
@@ -103,7 +103,7 @@ df = pd.DataFrame(data, columns=["ID", "Script", "Line", "Arg1", "Arg2"])
 # 保存为 CSV 文件
 # csv_filename = "hw_1000.csv"
 # csv_filename = "hw.csv"
-csv_filename = "hw_500.csv"
+csv_filename = "hw_100_luan.csv"
 df.to_csv(csv_filename, index=False, header=False, sep=' ')
 
 print(f"CSV 文件已生成: {csv_filename}")

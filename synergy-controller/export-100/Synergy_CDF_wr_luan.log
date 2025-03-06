@@ -1,0 +1,721 @@
+run_Synergy_CDF_wr 开始执行。
+1741241874.326647086
+Monitor get statusLock
+
+==== 当前系统节点状态 ====
+节点 172.17.0.5 | 调度策略: f | CPU 利用率: 0.00%
+节点 172.17.0.8 | 调度策略: c | CPU 利用率: 1.01%
+节点 172.17.0.7 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.6 | 调度策略: f | CPU 利用率: 0.00%
+FIFO 分区节点数: 2, CFS 分区节点数: 2
+FIFO 分区平均负载: 0.00%, CFS 分区平均负载: 0.51%
+监控并调整调度策略FIFO 分区平均负载: 0.00%, CFS 分区平均负载: 0.51%
+Monitor release statusLock
+Monitor get statusLock
+
+==== 任务统计 ====
+收到短任务: 51 个, 长任务: 49 个
+
+==== 当前系统节点状态 ====
+节点 172.17.0.6 | 调度策略: f | CPU 利用率: 0.00%
+节点 172.17.0.5 | 调度策略: f | CPU 利用率: 0.00%
+节点 172.17.0.7 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.8 | 调度策略: c | CPU 利用率: 1.01%
+FIFO 分区节点数: 2, CFS 分区节点数: 2
+FIFO 分区平均负载: 0.00%, CFS 分区平均负载: 0.51%
+监控并调整调度策略FIFO 分区平均负载: 0.00%, CFS 分区平均负载: 0.51%
+Monitor release statusLock
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib1 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib2 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib3 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib4 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib5 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib6 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib7 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib8 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib9 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib10 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib11 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib12 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib13 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib14 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib15 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib16 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib17 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib18 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib19 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib20 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib21 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib22 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib23 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib24 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib25 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib26 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib27 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib28 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib29 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib30 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib31 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib32 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib33 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib34 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib35 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib36 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib37 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib38 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib39 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib40 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib41 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib42 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib43 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib44 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib45 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib46 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib47 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib48 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib49 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib50 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib51 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib52 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib53 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib54 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib55 (长任务 (CFS)) 分配到节点 172.17.0.7 (CPU 负载: 0.00%)
+Monitor get statusLock
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib56 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+任务 fib2 已成功发送到节点 172.17.0.6
+任务 fib3 已成功发送到节点 172.17.0.6
+任务 fib13 已成功发送到节点 172.17.0.6
+任务 fib16 已成功发送到节点 172.17.0.5
+任务 fib15 已成功发送到节点 172.17.0.6
+任务 fib53 已成功发送到节点 172.17.0.5
+任务 fib6 已成功发送到节点 172.17.0.6
+任务 fib4 已成功发送到节点 172.17.0.6
+任务 fib11 已成功发送到节点 172.17.0.6
+任务 fib12 已成功发送到节点 172.17.0.6
+任务 fib43 已成功发送到节点 172.17.0.6
+任务 fib40 已成功发送到节点 172.17.0.6
+任务 fib27 已成功发送到节点 172.17.0.6
+任务 fib34 已成功发送到节点 172.17.0.6
+任务 fib33 已成功发送到节点 172.17.0.6
+任务 fib36 已成功发送到节点 172.17.0.6
+任务 fib31 已成功发送到节点 172.17.0.6
+任务 fib24 已成功发送到节点 172.17.0.6
+任务 fib39 已成功发送到节点 172.17.0.6
+任务 fib46 已成功发送到节点 172.17.0.6
+任务 fib44 已成功发送到节点 172.17.0.6
+
+==== 当前系统节点状态 ====
+节点 172.17.0.8 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.6 | 调度策略: f | CPU 利用率: 95.05%
+节点 172.17.0.7 | 调度策略: c | CPU 利用率: 100.00%
+节点 172.17.0.5 | 调度策略: f | CPU 利用率: 10.00%
+FIFO 分区节点数: 2, CFS 分区节点数: 2
+FIFO 分区平均负载: 52.52%, CFS 分区平均负载: 50.00%
+监控并调整调度策略FIFO 分区平均负载: 52.52%, CFS 分区平均负载: 50.00%
+Monitor release statusLock
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib57 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 10.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib58 (长任务 (CFS)) 分配到节点 172.17.0.8 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib59 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 10.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib60 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 10.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib61 (长任务 (CFS)) 分配到节点 172.17.0.8 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib62 (长任务 (CFS)) 分配到节点 172.17.0.8 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib63 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 10.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+Monitor get statusLock
+任务 fib64 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 10.00%)
+任务 fib28 已成功发送到节点 172.17.0.6
+任务 fib60 已成功发送到节点 172.17.0.5
+任务 fib23 已成功发送到节点 172.17.0.6
+任务 fib57 已成功发送到节点 172.17.0.5
+任务 fib63 已成功发送到节点 172.17.0.5
+任务 fib64 已成功发送到节点 172.17.0.5
+任务 fib59 已成功发送到节点 172.17.0.5
+任务 fib56 已成功发送到节点 172.17.0.6
+
+==== 当前系统节点状态 ====
+节点 172.17.0.6 | 调度策略: f | CPU 利用率: 51.00%
+节点 172.17.0.8 | 调度策略: c | CPU 利用率: 100.00%
+节点 172.17.0.7 | 调度策略: c | CPU 利用率: 100.00%
+节点 172.17.0.5 | 调度策略: f | CPU 利用率: 34.00%
+FIFO 分区节点数: 2, CFS 分区节点数: 2
+FIFO 分区平均负载: 42.50%, CFS 分区平均负载: 100.00%
+监控并调整调度策略FIFO 分区平均负载: 42.50%, CFS 分区平均负载: 100.00%
+Monitor release statusLock
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib65 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib66 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib67 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib68 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib69 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib70 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib71 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib72 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib73 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib74 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib75 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib76 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib77 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib78 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib79 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib80 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib81 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib82 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib83 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib84 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib85 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib86 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib87 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib88 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib89 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib90 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib91 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib92 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib93 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib94 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib95 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib96 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+Monitor get statusLock
+任务 fib97 (短任务 (FIFO)) 分配到节点 172.17.0.5 (CPU 负载: 34.00%)
+任务 fib66 已成功发送到节点 172.17.0.5
+任务 fib67 已成功发送到节点 172.17.0.5
+任务 fib78 已成功发送到节点 172.17.0.5
+任务 fib82 已成功发送到节点 172.17.0.5
+任务 fib96 已成功发送到节点 172.17.0.5
+任务 fib76 已成功发送到节点 172.17.0.5
+任务 fib79 已成功发送到节点 172.17.0.5
+任务 fib71 已成功发送到节点 172.17.0.5
+任务 fib80 已成功发送到节点 172.17.0.5
+任务 fib77 已成功发送到节点 172.17.0.5
+任务 fib81 已成功发送到节点 172.17.0.5
+
+==== 当前系统节点状态 ====
+节点 172.17.0.6 | 调度策略: f | CPU 利用率: 0.00%
+节点 172.17.0.8 | 调度策略: c | CPU 利用率: 100.00%
+节点 172.17.0.5 | 调度策略: f | CPU 利用率: 97.00%
+节点 172.17.0.7 | 调度策略: c | CPU 利用率: 100.00%
+FIFO 分区节点数: 2, CFS 分区节点数: 2
+FIFO 分区平均负载: 48.50%, CFS 分区平均负载: 100.00%
+监控并调整调度策略FIFO 分区平均负载: 48.50%, CFS 分区平均负载: 100.00%
+Monitor release statusLock
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib98 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib99 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib100 (短任务 (FIFO)) 分配到节点 172.17.0.6 (CPU 负载: 0.00%)
+dispatch finish one batch
+任务 fib94 已成功发送到节点 172.17.0.5
+任务 fib98 已成功发送到节点 172.17.0.6
+任务 fib87 已成功发送到节点 172.17.0.5
+任务 fib99 已成功发送到节点 172.17.0.6
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib65 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib68 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib69 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib70 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib72 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib73 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib74 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib75 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib83 等待调度
+dispatcher get statusLock
+Monitor get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib88 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib90 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib91 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib92 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib93 等待调度
+dispatch finish one batch
+任务 fib100 已成功发送到节点 172.17.0.6
+任务 fib86 已成功发送到节点 172.17.0.5
+任务 fib89 已成功发送到节点 172.17.0.5
+任务 fib84 已成功发送到节点 172.17.0.5
+任务 fib85 已成功发送到节点 172.17.0.5
+任务 fib95 已成功发送到节点 172.17.0.5
+任务 fib97 已成功发送到节点 172.17.0.5
+
+==== 当前系统节点状态 ====
+节点 172.17.0.6 | 调度策略: f | CPU 利用率: 10.00%
+节点 172.17.0.7 | 调度策略: c | CPU 利用率: 100.00%
+节点 172.17.0.8 | 调度策略: c | CPU 利用率: 100.00%
+节点 172.17.0.5 | 调度策略: f | CPU 利用率: 56.00%
+FIFO 分区节点数: 2, CFS 分区节点数: 2
+FIFO 分区平均负载: 33.00%, CFS 分区平均负载: 100.00%
+监控并调整调度策略FIFO 分区平均负载: 33.00%, CFS 分区平均负载: 100.00%
+Monitor release statusLock
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib65 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib68 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib69 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib70 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib72 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib73 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib74 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib75 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib83 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib88 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib90 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib91 等待调度
+dispatcher get statusLock
+Monitor get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib92 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib93 等待调度
+dispatch finish one batch
+任务 fib61 已成功发送到节点 172.17.0.8
+任务 fib58 已成功发送到节点 172.17.0.8
+
+==== 当前系统节点状态 ====
+节点 172.17.0.8 | 调度策略: c | CPU 利用率: 100.00%
+节点 172.17.0.6 | 调度策略: f | CPU 利用率: 0.00%
+节点 172.17.0.7 | 调度策略: c | CPU 利用率: 100.00%
+节点 172.17.0.5 | 调度策略: f | CPU 利用率: 0.00%
+FIFO 分区节点数: 2, CFS 分区节点数: 2
+FIFO 分区平均负载: 0.00%, CFS 分区平均负载: 100.00%
+监控并调整调度策略FIFO 分区平均负载: 0.00%, CFS 分区平均负载: 100.00%
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib65 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib68 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib69 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib70 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib72 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib73 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib74 等待调度
+选择节点 172.17.0.5 进行 f -> c 切换, 当前 CPU 负载: 0.00%
+成功切换节点 172.17.0.5 调度策略为 c
+Monitor release statusLock
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib75 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib83 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib88 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib90 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib91 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib92 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib93 等待调度
+dispatch finish one batch
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib65 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib68 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib69 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib70 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib72 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib73 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib74 等待调度
+Monitor get statusLock
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib75 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib83 等待调度
+dispatcher get statusLock
+dispatcher release statusLock
+没有可用的 长任务 (CFS) 节点，任务 fib88 等待调度
+任务 fib62 已成功发送到节点 172.17.0.8
+
+==== 当前系统节点状态 ====
+节点 172.17.0.8 | 调度策略: c | CPU 利用率: 53.47%
+节点 172.17.0.5 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.7 | 调度策略: c | CPU 利用率: 100.00%
+节点 172.17.0.6 | 调度策略: f | CPU 利用率: 2.02%
+FIFO 分区节点数: 1, CFS 分区节点数: 3
+FIFO 分区平均负载: 2.02%, CFS 分区平均负载: 51.16%
+监控并调整调度策略FIFO 分区平均负载: 2.02%, CFS 分区平均负载: 51.16%
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib90 (长任务 (CFS)) 分配到节点 172.17.0.5 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib91 (长任务 (CFS)) 分配到节点 172.17.0.5 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib92 (长任务 (CFS)) 分配到节点 172.17.0.5 (CPU 负载: 0.00%)
+选择节点 172.17.0.6 进行 f -> c 切换, 当前 CPU 负载: 2.02%
+成功切换节点 172.17.0.6 调度策略为 c
+Monitor release statusLock
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib93 (长任务 (CFS)) 分配到节点 172.17.0.5 (CPU 负载: 0.00%)
+dispatch finish one batch
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib65 (长任务 (CFS)) 分配到节点 172.17.0.5 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib68 (长任务 (CFS)) 分配到节点 172.17.0.5 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib69 (长任务 (CFS)) 分配到节点 172.17.0.5 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib70 (长任务 (CFS)) 分配到节点 172.17.0.5 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib72 (长任务 (CFS)) 分配到节点 172.17.0.5 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+Monitor get statusLock
+任务 fib73 (长任务 (CFS)) 分配到节点 172.17.0.5 (CPU 负载: 0.00%)
+
+==== 当前系统节点状态 ====
+节点 172.17.0.8 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.5 | 调度策略: c | CPU 利用率: 100.00%
+节点 172.17.0.6 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.7 | 调度策略: c | CPU 利用率: 100.00%
+FIFO 分区节点数: 0, CFS 分区节点数: 4
+FIFO 分区平均负载: 100.00%, CFS 分区平均负载: 50.00%
+监控并调整调度策略FIFO 分区平均负载: 100.00%, CFS 分区平均负载: 50.00%
+Monitor release statusLock
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib74 (长任务 (CFS)) 分配到节点 172.17.0.8 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib75 (长任务 (CFS)) 分配到节点 172.17.0.8 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib83 (长任务 (CFS)) 分配到节点 172.17.0.8 (CPU 负载: 0.00%)
+dispatcher get statusLock
+dispatcher release statusLock
+任务 fib88 (长任务 (CFS)) 分配到节点 172.17.0.8 (CPU 负载: 0.00%)
+dispatch finish one batch
+Dispatch finished.
+Monitor get statusLock
+任务 fib74 已成功发送到节点 172.17.0.8
+任务 fib88 已成功发送到节点 172.17.0.8
+任务 fib75 已成功发送到节点 172.17.0.8
+
+==== 当前系统节点状态 ====
+节点 172.17.0.8 | 调度策略: c | CPU 利用率: 100.00%
+节点 172.17.0.5 | 调度策略: c | CPU 利用率: 100.00%
+节点 172.17.0.6 | 调度策略: c | CPU 利用率: 1.00%
+节点 172.17.0.7 | 调度策略: c | CPU 利用率: 100.00%
+FIFO 分区节点数: 0, CFS 分区节点数: 4
+FIFO 分区平均负载: 100.00%, CFS 分区平均负载: 75.25%
+监控并调整调度策略FIFO 分区平均负载: 100.00%, CFS 分区平均负载: 75.25%
+Monitor release statusLock
+任务 fib83 已成功发送到节点 172.17.0.8
+任务 fib47 已成功发送到节点 172.17.0.7
+任务 fib55 已成功发送到节点 172.17.0.7
+Monitor get statusLock
+
+==== 当前系统节点状态 ====
+节点 172.17.0.6 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.5 | 调度策略: c | CPU 利用率: 100.00%
+节点 172.17.0.7 | 调度策略: c | CPU 利用率: 100.00%
+节点 172.17.0.8 | 调度策略: c | CPU 利用率: 0.00%
+FIFO 分区节点数: 0, CFS 分区节点数: 4
+FIFO 分区平均负载: 100.00%, CFS 分区平均负载: 50.00%
+监控并调整调度策略FIFO 分区平均负载: 100.00%, CFS 分区平均负载: 50.00%
+Monitor release statusLock
+任务 fib68 已成功发送到节点 172.17.0.5
+任务 fib72 已成功发送到节点 172.17.0.5
+任务 fib92 已成功发送到节点 172.17.0.5
+1741241889.688848818
+Log data processed successfully. Output saved to agent-1.csv
+Log data processed successfully. Output saved to agent-2.csv
+Log data processed successfully. Output saved to agent-3.csv
+Log data processed successfully. Output saved to agent-4.csv
+Log data processed successfully. Output saved to agent-6.csv
+Log data processed successfully. Output saved to agent-7.csv
+Log data processed successfully. Output saved to agent-8.csv
+Log data processed successfully. Output saved to agent-9.csv
+Log data processed successfully. Output saved to agent-11.csv
+Log data processed successfully. Output saved to agent-12.csv
+Log data processed successfully. Output saved to agent-13.csv
+Log data processed successfully. Output saved to agent-14.csv
+Merged CSV saved to: agent1_4.csv
+Average Turn-around Time: 16081.15
+Merged CSV saved to: agent6_9.csv
+Average Turn-around Time: nan
+Merged CSV saved to: agent11_14.csv
+Average Turn-around Time: nan
+101 agent1_4.csv
+1 agent6_9.csv
+1 agent11_14.csv
+run_Synergy_CDF_wr 执行完成。

@@ -1,5 +1,6 @@
 import sys
 import pandas as pd
+import os
 
 def merge_and_calculate_avg(csv_files, output_file):
     all_data = []
@@ -21,8 +22,12 @@ def merge_and_calculate_avg(csv_files, output_file):
     # 保存合并后的数据
     merged_df.to_csv(output_file, index=False)
     
-    print(f"Merged CSV saved to: {output_file}")
-    print(f"Average Turn-around Time: {avg_turnaround_time:.2f}")
+    result = f"Merged CSV saved to: {output_file}\nAverage Turn-around Time: {avg_turnaround_time:.2f}"
+
+    with open(f'{output_file}.txt', 'w') as f:
+        f.write(result)
+
+    print(result)
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
