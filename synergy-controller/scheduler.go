@@ -16,22 +16,34 @@ import (
 	"time"
 )
 
+const FORCEADJUSTOP = "FORCEADJUST"
+
 var (
 	// nodeIPs = []string{"localhost"}
 	nodeIPs = []string{}   // 所有节点
 	mutex   = sync.Mutex{} // 保护共享数据
 
+	// 节点状态锁
 	statusMutex = sync.Mutex{}
 	statusMap   = make(map[string]NodeStatus)
 
-	/// 下面两个变量, 标记一个周期内, 是否有对应类型的函数到达过.
+	// 标记一个周期内, 是否有对应类型的函数到达过.
 	shortFlag = false
 	longFlag  = false
 
-	/// 每隔若干个函数请求, 通过channel通知Monitor更新状态.
+	// 每隔若干个函数请求, 通过channel通知Monitor更新状态.
 	flushStChan    chan bool = make(chan bool, 1)
 	flushThreshold           = 64
+
+	// 标记预先分区调整.
+	forceAdjustLock sync.Mutex
+	forceAdjust     []ForceAdjustCommand = make([]ForceAdjustCommand, 0, 1)
 )
+
+type ForceAdjustCommand struct {
+	partition string
+	nums      int
+}
 
 type SelectFunc = func(map[string]NodeStatus, Task) (string, NodeStatus)
 
@@ -60,6 +72,19 @@ type Task struct {
 	ConStart string
 }
 
+func updateForceAdjust(commd ForceAdjustCommand) {
+	fmt.Println("updateForceAdjust")
+	forceAdjustLock.Lock()
+	defer forceAdjustLock.Unlock()
+
+	if len(forceAdjust) == 0 {
+		forceAdjust = append(forceAdjust, commd)
+	} else {
+		fmt.Printf("old command %v will be replace by new %v", forceAdjust[0], commd)
+		forceAdjust[0] = commd
+	}
+}
+
 // 读取 `test` 文件并解析任务
 func ReadTasksFromFile(filename string) []Task {
 	var tasks []Task
@@ -75,18 +100,28 @@ func ReadTasksFromFile(filename string) []Task {
 	timeStr := conStart.Format("2006-01-02 15:04:05.000")
 
 	for scanner.Scan() {
-		fields := strings.Fields(scanner.Text())
-		if len(fields) < 5 {
+		line := scanner.Text()
+		fields := strings.Fields(line)
+
+		task_name := fields[0]
+		script := fields[1]
+		param, _ := strconv.Atoi(fields[2])
+
+		if len(fields) < 3 {
+			log.Fatalf("Wrong trace item: %s\n", line)
+		}
+
+		if task_name == FORCEADJUSTOP {
+			tasks = append(tasks, Task{task_name, script, param, 0, 0, ""})
 			continue
 		}
 
-		param, _ := strconv.Atoi(fields[2])
 		unused1, _ := strconv.Atoi(fields[3])
 		seq, _ := strconv.Atoi(fields[4])
 
 		task := Task{
-			Name:     fields[0],
-			Script:   fields[1],
+			Name:     task_name,
+			Script:   script,
 			Param:    param,
 			Unused1:  unused1,
 			Seq:      seq,
@@ -102,9 +137,9 @@ func ReadTasksFromFile(filename string) []Task {
 }
 
 // 从本地的缓存中, 获取所有节点状态.
-func GetNodeStatuses() map[string]NodeStatus {
-	return statusMap
-}
+// func GetNodeStatuses() map[string]NodeStatus {
+// 	return statusMap
+// }
 
 func UpdateNodeStatus() {
 	statusMutex.Lock()
@@ -144,7 +179,8 @@ func UpdateNodeStatus() {
 	// 记录系统当前节点状态日志
 	fmt.Println("\n==== 当前系统节点状态 ====")
 	fifoNodes, cfsNodes := 0, 0
-	for ip, status := range statusMap {
+	for _, ip := range nodeIPs {
+		status := statusMap[ip]
 		fmt.Printf("节点 %s | 调度策略: %s | CPU 利用率: %.2f%%\n", ip, status.Policy, status.CPUUsage)
 		if status.Policy == "f" {
 			fifoNodes++
@@ -164,6 +200,10 @@ func isLongTask(task *Task) bool {
 func CountTasks(tasks []Task) (int, int) {
 	shortTasks, longTasks := 0, 0
 	for _, task := range tasks {
+		if task.Name == FORCEADJUSTOP {
+			continue
+		}
+
 		if isLongTask(&task) {
 			longTasks++
 		} else {
@@ -274,6 +314,22 @@ func SendTaskToNode(nodeIP string, task Task) {
 
 }
 
+func doDispatch(task Task, partition bool, selectBy SelectFunc) bool {
+	statusMutex.Lock()
+	fmt.Println("dispatcher get statusLock")
+	defer statusMutex.Unlock()
+
+	nodeIP := SelectBestNode(statusMap, task, partition, selectBy)
+	if nodeIP != "" {
+		SendTaskToNode(nodeIP, task)
+	} else {
+		return false
+	}
+
+	fmt.Println("dispatcher release statusLock")
+	return true
+}
+
 // 任务分发逻辑
 func DispatchTasks(tasks []Task, partition bool, selectBy SelectFunc) {
 	shortTasks, longTasks := CountTasks(tasks)
@@ -287,6 +343,18 @@ func DispatchTasks(tasks []Task, partition bool, selectBy SelectFunc) {
 		var nextTasks []Task
 
 		for _, task := range tasks {
+			// FORCEADJUST L 3 | FORCEADJUST S 5
+			if task.Name == FORCEADJUSTOP {
+				script := strings.ToUpper(task.Script)
+				if !(script == "L" || script == "S") {
+					log.Fatalf("Bad FORCEADJUST COMMAND, partition=%s\n", script)
+				}
+
+				commd := ForceAdjustCommand{partition: script, nums: task.Param}
+				updateForceAdjust(commd)
+				continue
+			}
+
 			longTask := isLongTask(&task)
 
 			if longTask {
@@ -305,16 +373,7 @@ func DispatchTasks(tasks []Task, partition bool, selectBy SelectFunc) {
 				shortFlag = true
 			}
 
-			statusMutex.Lock()
-			fmt.Println("dispatcher get statusLock")
-			statusMap := GetNodeStatuses()
-			fmt.Println("dispatcher release statusLock")
-			statusMutex.Unlock()
-
-			nodeIP := SelectBestNode(statusMap, task, partition, selectBy)
-			if nodeIP != "" {
-				SendTaskToNode(nodeIP, task)
-			} else {
+			if !doDispatch(task, partition, selectBy) {
 				nextTasks = append(nextTasks, task)
 			}
 		}
@@ -329,7 +388,7 @@ func DispatchTasks(tasks []Task, partition bool, selectBy SelectFunc) {
 }
 
 // 计算分区平均 CPU 负载
-func CalculatePartitionLoad(statusMap map[string]NodeStatus) (float64, float64) {
+func CalculatePartitionLoad(statusMap map[string]NodeStatus) (float64, float64, int, int) {
 	var fifoLoad, cfsLoad float64
 	var fifoCount, cfsCount int
 
@@ -357,14 +416,21 @@ func CalculatePartitionLoad(statusMap map[string]NodeStatus) (float64, float64) 
 
 	fmt.Printf("FIFO 分区平均负载: %.2f%%, CFS 分区平均负载: %.2f%%\n", fifoLoad, cfsLoad)
 
-	return fifoLoad, cfsLoad
+	return fifoLoad, cfsLoad, fifoCount, cfsCount
 }
 
 // 选择最低负载节点并等待任务完成后切换策略
-func SelectAndConvertNode(statusMap map[string]NodeStatus, fromPolicy, toPolicy string) {
+func SelectAndConvertNode(statusMap map[string]NodeStatus, fromPolicy, toPolicy string, force bool) {
 	minLoad := 100.0
 	var selectedNode *NodeStatus = nil
 	var selectedIp = ""
+
+	if force {
+		selectedIp = nodeIPs[0]
+		node := statusMap[selectedIp]
+		selectedNode = &node
+		minLoad = selectedNode.CPUUsage
+	}
 
 	for ip, status := range statusMap {
 		if status.Policy == fromPolicy && status.CPUUsage < minLoad {
@@ -374,7 +440,7 @@ func SelectAndConvertNode(statusMap map[string]NodeStatus, fromPolicy, toPolicy 
 		}
 	}
 
-	if selectedNode != nil {
+	if selectedIp != "" {
 		statusMutex.Lock()
 		defer statusMutex.Unlock()
 
@@ -390,7 +456,7 @@ func SelectAndConvertNode(statusMap map[string]NodeStatus, fromPolicy, toPolicy 
 // 等待节点任务执行完成
 func WaitForTasksCompletion(ip string) {
 	for {
-		statusMap := GetNodeStatuses()
+		// statusMap := GetNodeStatuses()
 		if status, exists := statusMap[ip]; exists && status.CPUUsage < 10.0 {
 			fmt.Printf("节点 %s 任务完成, CPU 负载: %.2f%%, 准备切换策略\n", ip, status.CPUUsage)
 			return
@@ -416,6 +482,51 @@ func ChangePolicy(ip, newPolicy string) {
 	fmt.Printf("成功切换节点 %s 调度策略为 %s\n", ip, newPolicy)
 }
 
+func checkAndAdjustPartition() {
+	fifoLoad, cfsLoad, fifoCount, cfsCount := CalculatePartitionLoad(statusMap)
+	fmt.Printf("监控并调整调度策略, FIFO 分区平均负载: %.2f%%, CFS 分区平均负载: %.2f%%\n", fifoLoad, cfsLoad)
+
+	forceAdjustLock.Lock()
+	defer forceAdjustLock.Unlock()
+
+	var from, to string
+	// fmt.Printf("checkAndAdjustPartition, forceAdjust=%+v\n", forceAdjust)
+	if len(forceAdjust) > 0 {
+		// fmt.Printf("存在未完成的 forceCommand\n")
+
+		commd := forceAdjust[0]
+		target := commd.nums
+		current := -1
+		if commd.partition == "S" {
+			from, to = "c", "f"
+			current = fifoCount
+		} else /* commd.partition == "L" */ {
+			from, to = "f", "c"
+			current = cfsCount
+		}
+
+		if current > target {
+			from, to = to, from
+		} else if current == target {
+			forceAdjust = forceAdjust[:0]
+			return
+		}
+
+		fmt.Printf("强制从 %s 向 %s 分区加入节点, 目标节点数: %d.\n", from, to, commd.nums)
+		force := true
+		SelectAndConvertNode(statusMap, from, to, force)
+		return
+	}
+
+	// 测不同数据集需要更改一下切换负载，以下负载适用于600-27 20-32
+	force := false
+	if fifoLoad < 10 && cfsLoad > 20 && longFlag {
+		SelectAndConvertNode(statusMap, "f", "c", force)
+	} else if cfsLoad < 10 && fifoLoad > 20 && shortFlag {
+		SelectAndConvertNode(statusMap, "c", "f", force)
+	}
+}
+
 // 监控并调整调度策略
 func MonitorAndAdjustPolicies(allowAdjust bool) {
 	for {
@@ -423,18 +534,7 @@ func MonitorAndAdjustPolicies(allowAdjust bool) {
 		UpdateNodeStatus()
 
 		if allowAdjust {
-			statusMap := GetNodeStatuses()
-
-			fifoLoad, cfsLoad := CalculatePartitionLoad(statusMap)
-			fmt.Printf("监控并调整调度策略")
-			fmt.Printf("FIFO 分区平均负载: %.2f%%, CFS 分区平均负载: %.2f%%\n", fifoLoad, cfsLoad)
-
-			// 测不同数据集需要更改一下切换负载，以下负载适用于600-27 20-32
-			if fifoLoad < 10 && cfsLoad > 20 && longFlag {
-				SelectAndConvertNode(statusMap, "f", "c")
-			} else if cfsLoad < 10 && fifoLoad > 20 && shortFlag {
-				SelectAndConvertNode(statusMap, "c", "f")
-			}
+			checkAndAdjustPartition()
 		}
 
 		cleared := false
@@ -465,10 +565,9 @@ func setup_agents(local bool, allowAdjust bool, partition bool, select_by string
 	}
 
 	if partition {
-		if select_by == "hash" || select_by == "random" {
-			log.Fatalln("使用 hash 和 random 必须关闭 partition")
-		}
-
+		// if select_by == "hash" || select_by == "random" {
+		// 	log.Fatalln("使用 hash 和 random 必须关闭 partition")
+		// }
 		if allowAdjust {
 			nodeIPs = []string{"172.17.0.5", "172.17.0.6", "172.17.0.7", "172.17.0.8"}
 		} else {
@@ -478,8 +577,9 @@ func setup_agents(local bool, allowAdjust bool, partition bool, select_by string
 	}
 
 	if allowAdjust {
-		log.Fatalln("使用 --allowAdjust 必须开启 partition")
+		log.Fatalln("使用 --allowAdjust 必须开启 --partition")
 	}
+
 	nodeIPs = []string{"172.17.0.13", "172.17.0.14", "172.17.0.15", "172.17.0.16"}
 }
 
@@ -515,6 +615,22 @@ func main() {
 
 	time.Sleep(3 * time.Second)
 	traces := ReadTasksFromFile(trace_name)
+
+	if partition {
+		// 对 task 进行排序, 按照 Param 从小到大排序
+		for i := 0; i < len(traces); i++ {
+			for j := i + 1; j < len(traces); j++ {
+				if traces[i].Param > traces[j].Param {
+					traces[i], traces[j] = traces[j], traces[i]
+				}
+			}
+		}
+	}
+
+	for _, task := range traces {
+		fmt.Print(task.Param, " ")
+	}
+	fmt.Println()
 
 	DispatchTasks(traces, partition, selectFunc) // 任务分发
 
