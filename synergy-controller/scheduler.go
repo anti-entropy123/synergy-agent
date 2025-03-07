@@ -616,16 +616,16 @@ func main() {
 	time.Sleep(3 * time.Second)
 	traces := ReadTasksFromFile(trace_name)
 
-	if partition {
-		// 对 task 进行排序, 按照 Param 从小到大排序
-		for i := 0; i < len(traces); i++ {
-			for j := i + 1; j < len(traces); j++ {
-				if traces[i].Param > traces[j].Param {
-					traces[i], traces[j] = traces[j], traces[i]
-				}
-			}
-		}
-	}
+	// if partition {
+	// 	// 对 task 进行排序, 按照 Param 从小到大排序
+	// 	for i := 0; i < len(traces); i++ {
+	// 		for j := i + 1; j < len(traces); j++ {
+	// 			if traces[i].Param > traces[j].Param {
+	// 				traces[i], traces[j] = traces[j], traces[i]
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	for _, task := range traces {
 		fmt.Print(task.Param, " ")
