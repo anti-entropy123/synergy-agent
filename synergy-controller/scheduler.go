@@ -16,6 +16,11 @@ import (
 	"time"
 )
 
+/*
+#include "const.h"
+*/
+import "C"
+
 const FORCEADJUSTOP = "FORCEADJUST"
 
 var (
@@ -470,18 +475,18 @@ func SelectAndConvertNode(statusMap map[string]NodeStatus, fromPolicy, toPolicy 
 	}
 }
 
-// 等待节点任务执行完成
-func WaitForTasksCompletion(ip string) {
-	for {
-		// statusMap := GetNodeStatuses()
-		if status, exists := statusMap[ip]; exists && status.CPUUsage < 10.0 {
-			fmt.Printf("节点 %s 任务完成, CPU 负载: %.2f%%, 准备切换策略\n", ip, status.CPUUsage)
-			return
-		}
-		time.Sleep(waitCompPeriod) // 每 2 秒检查一次
-		UpdateNodeStatus()
-	}
-}
+// // 等待节点任务执行完成
+// func WaitForTasksCompletion(ip string) {
+// 	for {
+// 		// statusMap := GetNodeStatuses()
+// 		if status, exists := statusMap[ip]; exists && status.CPUUsage < 10.0 {
+// 			fmt.Printf("节点 %s 任务完成, CPU 负载: %.2f%%, 准备切换策略\n", ip, status.CPUUsage)
+// 			return
+// 		}
+// 		time.Sleep(waitCompPeriod) // 每 2 秒检查一次
+// 		UpdateNodeStatus()
+// 	}
+// }
 
 // 发送调度策略切换请求并同步中心控制器
 func ChangePolicy(ip, newPolicy string) {
@@ -536,9 +541,9 @@ func checkAndAdjustPartition() {
 
 	// 测不同数据集需要更改一下切换负载，以下负载适用于600-27 20-32
 	force := false
-	if fifoLoad < 10 && cfsLoad > 20 && longFlag {
+	if fifoLoad < C.NOT_BUSY_THRESHOLD && cfsLoad > C.BUSY_THRESHOLD && longFlag {
 		SelectAndConvertNode(statusMap, "f", "c", force)
-	} else if cfsLoad < 10 && fifoLoad > 20 && shortFlag {
+	} else if cfsLoad < C.NOT_BUSY_THRESHOLD && fifoLoad > C.BUSY_THRESHOLD && shortFlag {
 		SelectAndConvertNode(statusMap, "c", "f", force)
 	}
 }
