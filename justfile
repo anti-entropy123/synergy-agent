@@ -133,17 +133,13 @@ send_reqs trace='test_tiny':
     curl -X POST -H "Content-Type: text/plain" --data-binary @synergy-controller/{{trace}} http://localhost:20251/set_reqs
 
 run_controller trace_file="test_tiny" schedu_arg="--allowAdjust --partition":
-    #!/usr/bin/bash
-    
     just reset_policy
     just clear_log
     cd synergy-controller && go build scheduler.go
     sleep 3
 
-    export trace_file={{trace_file}}
-
     date '+%s.%N'
-    ./scheduler {{schedu_arg}} --trace $trace_file {{console_redirect}}
+    ./synergy-controller/scheduler {{schedu_arg}} --trace ./synergy-controller/{{trace_file}} {{console_redirect}}
     date '+%s.%N'
 
     just export_agent_log
@@ -158,13 +154,14 @@ run_predictor:
 wait_ack_htop:
     #!/usr/bin/bash
 
-    read -p "检查 htop 后继续: "
+    # read -p "检查 htop 后继续: "
+    sleep 10
 
 export_results label:
     -rm -r synergy-controller/export/result_{{label}}
     mkdir -p synergy-controller/export/result_{{label}} && cp -r synergy-controller/result synergy-controller/export/result_{{label}}
 
-run_synergy_CDF:
+run_synergy_CDF_20_600:
     @echo "run_Synergy_CDF_20-600 开始执行。"
     # test_data/20-600
     # agent 1-4
@@ -173,6 +170,9 @@ run_synergy_CDF:
     just comp_turnaround
     just export_results 'Synergy_CDF_20-600'
     @echo "run_Synergy_CDF_20-600 执行完成。"
+
+run_synergy_CDF:
+    just run_synergy_CDF_20_600
 
     @echo "run_Synergy_CDF_30-300 开始执行。"
     just run_controller 'test_data/30-300' '--allowAdjust --partition --selectBy leastLoad'
@@ -396,3 +396,26 @@ run_SFS_CDF_wr:
     just comp_turnaround
     just export_results 'SFS_CDF_wr'
     @echo "run_SFS_CDF_wr 执行完成。"
+
+test_threshold:
+    #!/usr/bin/python3
+    import subprocess
+    import time
+    
+    for not_busy in range(5, 90, 5):
+        for busy in range(not_busy, 90, 5):
+            print("not_busy: ", not_busy, "busy: ", busy)
+            const_file = open("./synergy-controller/const.h", "w")
+            const_file.write(f"#define NOT_BUSY_THRESHOLD {not_busy}\n#define BUSY_THRESHOLD {busy}\n")
+            const_file.close()
+            time.sleep(1)
+
+            p1 = subprocess.Popen(["just", "run_synergy_CDF"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            p2 = subprocess.Popen(["grep", "Average Turn-around Time:"], stdin=p1.stdout, stdout=subprocess.PIPE, text=True)
+            p1.stdout.close()
+            output, _ = p2.communicate()
+            if p2.returncode != 0:
+                print("run_synergy_CDF failed")
+                exit(1)
+
+            print(output.strip())

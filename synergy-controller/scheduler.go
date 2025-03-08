@@ -32,8 +32,10 @@ var (
 	longFlag  = false
 
 	// 每隔若干个函数请求, 通过channel通知Monitor更新状态.
-	flushStChan    chan bool = make(chan bool, 1)
+	flushCnt       int       = 0
+	flushStChan    chan bool = make(chan bool, 0)
 	flushThreshold           = 64
+	flushDoneChan  chan bool = make(chan bool, 0)
 
 	// 标记预先分区调整.
 	forceAdjustLock sync.Mutex
@@ -67,7 +69,7 @@ type Task struct {
 	Name     string
 	Script   string
 	Param    int
-	Unused1  int
+	Arrival  int
 	Seq      int
 	ConStart string
 }
@@ -116,14 +118,14 @@ func ReadTasksFromFile(filename string) []Task {
 			continue
 		}
 
-		unused1, _ := strconv.Atoi(fields[3])
+		arrival, _ := strconv.Atoi(fields[3])
 		seq, _ := strconv.Atoi(fields[4])
 
 		task := Task{
 			Name:     task_name,
 			Script:   script,
 			Param:    param,
-			Unused1:  unused1,
+			Arrival:  arrival,
 			Seq:      seq,
 			ConStart: timeStr,
 		}
@@ -142,8 +144,6 @@ func ReadTasksFromFile(filename string) []Task {
 // }
 
 func UpdateNodeStatus() {
-	statusMutex.Lock()
-	defer statusMutex.Unlock()
 
 	newStatusMap := make(map[string]NodeStatus)
 
@@ -175,6 +175,12 @@ func UpdateNodeStatus() {
 	wg.Wait()
 
 	statusMap = newStatusMap
+
+	select {
+	case flushDoneChan <- true:
+	default:
+		break
+	}
 
 	// 记录系统当前节点状态日志
 	fmt.Println("\n==== 当前系统节点状态 ====")
@@ -297,7 +303,7 @@ func SelectBestNode(statusMap map[string]NodeStatus, task Task, partition bool, 
 // 发送任务请求到指定节点
 func SendTaskToNode(nodeIP string, task Task) {
 	url := fmt.Sprintf("http://%s:20251/set_reqs", nodeIP)
-	taskData := fmt.Sprintf("%s %s %d %d %d %s", task.Name, task.Script, task.Param, task.Unused1, task.Seq, task.ConStart)
+	taskData := fmt.Sprintf("%s %s %d %d %d %s", task.Name, task.Script, task.Param, task.Arrival, task.Seq, task.ConStart)
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer([]byte(taskData)))
 	req.Header.Set("Content-Type", "text/plain")
 
@@ -315,8 +321,26 @@ func SendTaskToNode(nodeIP string, task Task) {
 }
 
 func doDispatch(task Task, partition bool, selectBy SelectFunc) bool {
+	longTask := isLongTask(&task)
+
+	if longTask {
+		flushCnt += 5
+	} else {
+		flushCnt += 1
+	}
+	if flushCnt > flushThreshold {
+		flushCnt = 0
+		flushStChan <- true
+	}
+
+	if longTask {
+		longFlag = true
+	} else {
+		shortFlag = true
+	}
+
 	statusMutex.Lock()
-	fmt.Println("dispatcher get statusLock")
+	fmt.Printf("dispatcher get statusLock, flushCnt=%d\n", flushCnt)
 	defer statusMutex.Unlock()
 
 	nodeIP := SelectBestNode(statusMap, task, partition, selectBy)
@@ -337,53 +361,46 @@ func DispatchTasks(tasks []Task, partition bool, selectBy SelectFunc) {
 	fmt.Printf("\n==== 任务统计 ====\n")
 	fmt.Printf("收到短任务: %d 个, 长任务: %d 个\n", shortTasks, longTasks)
 
-	flushCnt := 0
+	var taskIdx = 0
+	var pendingTasks []*Task
+	var nextTaskTimer *time.Timer = time.NewTimer(time.Millisecond * time.Duration(tasks[0].Arrival))
 
-	for {
-		var nextTasks []Task
+	for taskIdx < len(tasks) || len(pendingTasks) > 0 {
 
-		for _, task := range tasks {
-			// FORCEADJUST L 3 | FORCEADJUST S 5
-			if task.Name == FORCEADJUSTOP {
-				script := strings.ToUpper(task.Script)
-				if !(script == "L" || script == "S") {
-					log.Fatalf("Bad FORCEADJUST COMMAND, partition=%s\n", script)
+		// FORCEADJUST L 3 | FORCEADJUST S 5
+		if taskIdx < len(tasks) && tasks[taskIdx].Name == FORCEADJUSTOP {
+			script := strings.ToUpper(tasks[taskIdx].Script)
+			if !(script == "L" || script == "S") {
+				log.Fatalf("Bad FORCEADJUST COMMAND, partition=%s\n", script)
+			}
+
+			commd := ForceAdjustCommand{partition: script, nums: tasks[taskIdx].Param}
+			updateForceAdjust(commd)
+			taskIdx++
+			continue
+		}
+
+		var task *Task
+
+		select {
+		case <-nextTaskTimer.C:
+			task = &tasks[taskIdx]
+			taskIdx++
+			if taskIdx < len(tasks) {
+				nextTaskTimer.Reset(time.Millisecond * time.Duration(tasks[taskIdx].Arrival))
+			}
+			if !doDispatch(*task, partition, selectBy) {
+				pendingTasks = append(pendingTasks, task)
+			}
+		case <-flushDoneChan:
+			nextPendingTasks := make([]*Task, 0)
+			for _, task := range pendingTasks {
+				if !doDispatch(*task, partition, selectBy) {
+					nextPendingTasks = append(nextPendingTasks, task)
 				}
-
-				commd := ForceAdjustCommand{partition: script, nums: task.Param}
-				updateForceAdjust(commd)
-				continue
 			}
-
-			longTask := isLongTask(&task)
-
-			if longTask {
-				flushCnt += 5
-			} else {
-				flushCnt += 1
-			}
-			if flushCnt > flushThreshold {
-				flushCnt = 0
-				flushStChan <- true
-			}
-
-			if longTask {
-				longFlag = true
-			} else {
-				shortFlag = true
-			}
-
-			if !doDispatch(task, partition, selectBy) {
-				nextTasks = append(nextTasks, task)
-			}
+			pendingTasks = nextPendingTasks
 		}
-
-		fmt.Println("dispatch finish one batch")
-		if len(nextTasks) == 0 {
-			break
-		}
-		tasks = nextTasks
-		time.Sleep(dispatchPeriod)
 	}
 }
 
@@ -493,7 +510,6 @@ func checkAndAdjustPartition() {
 	// fmt.Printf("checkAndAdjustPartition, forceAdjust=%+v\n", forceAdjust)
 	if len(forceAdjust) > 0 {
 		// fmt.Printf("存在未完成的 forceCommand\n")
-
 		commd := forceAdjust[0]
 		target := commd.nums
 		current := -1
@@ -529,9 +545,13 @@ func checkAndAdjustPartition() {
 
 // 监控并调整调度策略
 func MonitorAndAdjustPolicies(allowAdjust bool) {
+	ticker := time.NewTicker(2 * time.Second)
+
 	for {
+		statusMutex.Lock()
 		fmt.Println("Monitor get statusLock")
 		UpdateNodeStatus()
+		statusMutex.Unlock()
 
 		if allowAdjust {
 			checkAndAdjustPartition()
@@ -552,13 +572,14 @@ func MonitorAndAdjustPolicies(allowAdjust bool) {
 		shortFlag = false
 
 		select {
-		case <-time.NewTimer(time.Second).C:
+		case <-ticker.C:
 		case <-flushStChan:
+			fmt.Println("read flushStChan")
 		}
 	}
 }
 
-func setup_agents(local bool, allowAdjust bool, partition bool, select_by string) {
+func setup_agents(local bool, allowAdjust bool, partition bool, _select_by string) {
 	if local {
 		nodeIPs = []string{"localhost"}
 		return
