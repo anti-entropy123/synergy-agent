@@ -1,0 +1,2 @@
+#define NOT_BUSY_THRESHOLD 10
+#define BUSY_THRESHOLD 35

@@ -1,5 +1,6 @@
 import random
 import pandas as pd
+import numpy as np
 
 # 定义占比数据-华为
 ratios = {
@@ -95,6 +96,8 @@ random.shuffle(lines)
 
 # 根据打乱后的数据生成对应的数据行
 for i in range(total_samples):
+    # 使用泊松分布生成第四列数据，lambda 参数可以根据需求调整
+    arrival_time = np.random.poisson(1)  # 这里假设 λ = 1，表示事件平均每单位时间发生1次
     data.append([f"fib{i+1}", "fib.py", lines[i], 0, i+1])  # 第三列打乱，最后一列从1递增
 
 # 转换为 DataFrame
@@ -103,7 +106,7 @@ df = pd.DataFrame(data, columns=["ID", "Script", "Line", "Arg1", "Arg2"])
 # 保存为 CSV 文件
 # csv_filename = "hw_1000.csv"
 # csv_filename = "hw.csv"
-csv_filename = "hw_100_luan.csv"
+csv_filename = "hw_100_luan_poisson.csv"
 df.to_csv(csv_filename, index=False, header=False, sep=' ')
 
 print(f"CSV 文件已生成: {csv_filename}")
