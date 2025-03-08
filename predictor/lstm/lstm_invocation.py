@@ -97,14 +97,13 @@ def train_and_predict(invoc_nums):
     
     return predictions, y_test_actual, train_time, pred_time
 
-
 func_to_qps = read_data()
 
 def test_lstm(func_label, func_id):
     print(f"begin lstm_{func_label}")
     predict, actual, t_time, p_time = train_and_predict(func_to_qps[func_id])
     print(t_time, p_time)
-    calc_error_rate(f"lstm_{func_label}", predict, actual)
+    calc_error_rate(f"lstm_{func_label}", actual, predict)
     save_result(f'lstm_{func_label}', predict, actual)
 
 test_lstm("pw_zq", pw_zq_func_id)

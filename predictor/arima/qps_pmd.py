@@ -61,10 +61,10 @@ func_to_qps = read_data()
 
 def test_arima(func_label, func_id):
     print(f"begin arima_{func_label}")
-    predict, actual, t_time, p_time = train_and_predict(func_to_qps[func_id])
+    actual, predict, t_time, p_time = train_and_predict(func_to_qps[func_id])
     print(t_time, p_time)
     save_result(f'arima_{func_label}', predict, actual)
-    calc_error_rate("arima_pw_zq", predict, actual)
+    calc_error_rate("arima_pw_zq", actual, predict)
 
 
 test_arima("pw_zq", pw_zq_func_id)
