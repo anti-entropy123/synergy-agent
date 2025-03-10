@@ -3,9 +3,28 @@ import pandas as pd
 import numpy as np
 
 # 定义占比数据-华为
+# ratios = {
+#     20: 51.89,
+#     21: 0.84,
+#     22: 0.14,
+#     23: 1.89,
+#     24: 4.83,
+#     25: 0.63,
+#     26: 3.15,
+#     27: 0.14,
+#     28: 2.87,
+#     29: 8.54,
+#     30: 7.56,
+#     31: 3.50,
+#     32: 4.27,
+#     33: 5.04,
+#     34: 2.17,
+#     35: 2.52
+# }
+
 ratios = {
     20: 51.89,
-    21: 0.84,
+    21: 0.84 + 2.52 + 2.17 + 5.04,
     22: 0.14,
     23: 1.89,
     24: 4.83,
@@ -15,11 +34,8 @@ ratios = {
     28: 2.87,
     29: 8.54,
     30: 7.56,
-    31: 3.50,
-    32: 4.27,
-    33: 5.04,
-    34: 2.17,
-    35: 2.52
+    31: 6.50,
+    32: 1.27,
 }
 
 # # 定义占比数据-华为
@@ -59,7 +75,10 @@ ratios = {
 # }
 
 # 计算每个数值对应的数量
-total_samples = 100
+low_load_interval = 50
+low_load_interval_time = 2000
+total_samples = 500
+
 counts = {k: int(v / 100 * total_samples) for k, v in ratios.items()}
 
 # 确保总数为 1000，调整误差
@@ -94,11 +113,16 @@ for value, count in counts.items():
 # 打乱第三列数据
 random.shuffle(lines)
 
+
 # 根据打乱后的数据生成对应的数据行
 for i in range(total_samples):
     # 使用泊松分布生成第四列数据，lambda 参数可以根据需求调整
-    arrival_time = np.random.poisson(1)  # 这里假设 λ = 1，表示事件平均每单位时间发生1次
-    data.append([f"fib{i+1}", "fib.py", lines[i], 0, i+1])  # 第三列打乱，最后一列从1递增
+    if (i + 1) % low_load_interval == 0:
+        arrival_time = low_load_interval_time
+    else:
+        arrival_time = np.random.poisson(0.3)  # 这里假设 λ = 1，表示事件平均每单位时间发生1次
+    
+    data.append([f"fib{i+1}", "fib.py", lines[i], arrival_time, i+1])  # 第三列打乱，最后一列从1递增
 
 # 转换为 DataFrame
 df = pd.DataFrame(data, columns=["ID", "Script", "Line", "Arg1", "Arg2"])
@@ -106,7 +130,7 @@ df = pd.DataFrame(data, columns=["ID", "Script", "Line", "Arg1", "Arg2"])
 # 保存为 CSV 文件
 # csv_filename = "hw_1000.csv"
 # csv_filename = "hw.csv"
-csv_filename = "hw_100_luan_poisson.csv"
+csv_filename = f"hw_{total_samples}_luan_poisson"
 df.to_csv(csv_filename, index=False, header=False, sep=' ')
 
 print(f"CSV 文件已生成: {csv_filename}")

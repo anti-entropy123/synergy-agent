@@ -151,9 +151,11 @@ func ExecuteNoChannel(wg *sync.WaitGroup, job Action, p string, pids chan PidI, 
 			fmt.Printf("parse conStart failed, err=%v\n", err)
 			panic(err)
 		}
-		
-		fmt.Printf("t2=%s, %v, t0=%s, %v\n", t2.Format("2006-01-02 15:04:05.000"), t2, job.ConStart, t0)
-		fmt.Println(job.JobName, t2.Sub(t0).Milliseconds())
+
+		t2str := t2.Format("15:04:05.000")
+		// fmt.Printf("t2=%s, %v, t0=%s, %v\n", t2str, t2, job.ConStart, t0)
+		// fibxx, t0, t1, t2, t1-t0, t2-t1, 周转时间(t2-t0)
+		fmt.Println(job.JobName, job.ConStart[11:], t1.Format("15:04:05.000"), t2str, t1.Sub(t0).Milliseconds(), t2.Sub(t1).Milliseconds(), t2.Sub(t0).Milliseconds())
 		//fmt.Println(t2.Sub(t1).Milliseconds())
 		//fmt.Println("logs TIME: ", job.JobName, t1.Sub(start_time), t2.Sub(start_time))
 

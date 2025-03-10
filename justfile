@@ -75,21 +75,21 @@ clear_log:
     done
 
 
-reset_policy:
-    curl -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.5:20251/change_policy
-    curl -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.6:20251/change_policy
-    curl -X POST -H "Content-Type: text/plain" --data 'c' http://172.17.0.7:20251/change_policy
-    curl -X POST -H "Content-Type: text/plain" --data 'c' http://172.17.0.8:20251/change_policy
+reset_policy policy='c':
+    curl -s -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.5:20251/change_policy
+    curl -s -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.6:20251/change_policy
+    curl -s -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.7:20251/change_policy
+    curl -s -X POST -H "Content-Type: text/plain" --data 'c' http://172.17.0.8:20251/change_policy
 
-    curl -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.9:20251/change_policy
-    curl -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.10:20251/change_policy
-    curl -X POST -H "Content-Type: text/plain" --data 'c' http://172.17.0.11:20251/change_policy
-    curl -X POST -H "Content-Type: text/plain" --data 'c' http://172.17.0.12:20251/change_policy
+    curl -s -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.9:20251/change_policy
+    curl -s -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.10:20251/change_policy
+    curl -s -X POST -H "Content-Type: text/plain" --data 'c' http://172.17.0.11:20251/change_policy
+    curl -s -X POST -H "Content-Type: text/plain" --data 'c' http://172.17.0.12:20251/change_policy
     
-    curl -X POST -H "Content-Type: text/plain" --data 'm' http://172.17.0.13:20251/change_policy
-    curl -X POST -H "Content-Type: text/plain" --data 'm' http://172.17.0.14:20251/change_policy
-    curl -X POST -H "Content-Type: text/plain" --data 'm' http://172.17.0.15:20251/change_policy
-    curl -X POST -H "Content-Type: text/plain" --data 'm' http://172.17.0.16:20251/change_policy
+    curl -s -X POST -H "Content-Type: text/plain" --data '{{policy}}' http://172.17.0.13:20251/change_policy
+    curl -s -X POST -H "Content-Type: text/plain" --data '{{policy}}' http://172.17.0.14:20251/change_policy
+    curl -s -X POST -H "Content-Type: text/plain" --data '{{policy}}' http://172.17.0.15:20251/change_policy
+    curl -s -X POST -H "Content-Type: text/plain" --data '{{policy}}' http://172.17.0.16:20251/change_policy
 
 export_agent_log:
     #!/usr/bin/bash
@@ -130,13 +130,13 @@ comp_turnaround: export_agent_log gen_csv
     cd synergy-controller/result && wc -l agent11_14.csv
 
 send_reqs trace='test_tiny':
-    curl -X POST -H "Content-Type: text/plain" --data-binary @synergy-controller/{{trace}} http://localhost:20251/set_reqs
+    curl -X POST -H "Content-Type: text/plain" --data-binary @synergy/test_data/{{trace}} http://localhost:20251/set_reqs
 
-run_controller trace_file="test_tiny" schedu_arg="--allowAdjust --partition":
-    just reset_policy
+run_controller trace_file="test_data/test_tiny" schedu_arg="--allowAdjust --partition" policy="c":
+    just reset_policy {{policy}}
     just clear_log
     cd synergy-controller && go build scheduler.go
-    sleep 3
+    sleep 1
 
     date '+%s.%N'
     ./synergy-controller/scheduler {{schedu_arg}} --trace ./synergy-controller/{{trace_file}} {{console_redirect}}
@@ -161,104 +161,65 @@ export_results label:
     -rm -r synergy-controller/export/result_{{label}}
     mkdir -p synergy-controller/export/result_{{label}} && cp -r synergy-controller/result synergy-controller/export/result_{{label}}
 
-run_synergy_CDF_20_600:
-    @echo "run_Synergy_CDF_20-600 开始执行。"
+run_synergy trace='20-600': 
+    @echo "run_Synergy_CDF_{{trace}} 开始执行。"
     # test_data/20-600
     # agent 1-4
-    just run_controller 'test_data/20-600' '--allowAdjust --partition --selectBy leastLoad'
+    just run_controller 'test_data/{{trace}}' '--allowAdjust --partition --selectBy hash'
     just wait_ack_htop
     just comp_turnaround
-    just export_results 'Synergy_CDF_20-600'
-    @echo "run_Synergy_CDF_20-600 执行完成。"
+    just export_results 'Synergy_CDF_{{trace}}'
+    @echo "run_Synergy_CDF_{{trace}} 执行完成。"
 
 run_synergy_CDF:
-    just run_synergy_CDF_20_600
+    just run_synergy 20-600
+    just run_synergy 30-300
+    just run_synergy 40-200
 
-    @echo "run_Synergy_CDF_30-300 开始执行。"
-    just run_controller 'test_data/30-300' '--allowAdjust --partition --selectBy leastLoad'
+run_OpenWhisk trace='20-600':
+    @echo "run_OpenWhisk_CDF_{{trace}} 开始执行。"
+    # test_data/{{trace}}
+    # agent 1-4
+    just run_controller 'test_data/{{trace}}' '--selectBy hash'
     just wait_ack_htop
     just comp_turnaround
-    just export_results 'Synergy_CDF_30-300'
-    @echo "run_Synergy_CDF_30-300 执行完成。"
-
-    @echo "run_Synergy_CDF_40-200 开始执行。"
-    just run_controller 'test_data/40-200' '--allowAdjust --partition --selectBy leastLoad'
-    just wait_ack_htop
-    just comp_turnaround
-    just export_results 'Synergy_CDF_40-200'
-    @echo "run_Synergy_CDF_40-200 执行完成。"
+    just export_results 'OpenWhisk_CDF_{{trace}}'
+    @echo "run_OpenWhisk_CDF_{{trace}} 执行完成。"
 
 run_OpenWhisk_CDF:
-    @echo "run_OpenWhisk_CDF_20-600 开始执行。"
+    just run_OpenWhisk 20-600
+    just run_OpenWhisk 30-300
+    just run_OpenWhisk 40-200
+
+run_OpenFaaS trace='20-600':
+    @echo "run_OpenFaaS_CDF_{{trace}} 开始执行。"
     # test_data/20-600
     # agent 1-4
-    just run_controller 'test_data/20-600' '--selectBy hash'
+    just run_controller 'test_data/{{trace}}' '--selectBy random'
     just wait_ack_htop
     just comp_turnaround
-    just export_results 'OpenWhisk_CDF_20-600'
-    @echo "run_OpenWhisk_CDF_20-600 执行完成。"
-
-    @echo "run_OpenWhisk_CDF_30-300 开始执行。"
-    just run_controller 'test_data/30-300' '--selectBy hash'
-    just wait_ack_htop
-    just comp_turnaround
-    just export_results 'OpenWhisk_CDF_30-300'
-    @echo "run_OpenWhisk_CDF_30-300 执行完成。"
-
-    @echo "run_OpenWhisk_CDF_40-200 开始执行。"
-    just run_controller 'test_data/40-200' '--selectBy hash'
-    just wait_ack_htop
-    just comp_turnaround
-    just export_results 'OpenWhisk_CDF_40-200'
-    @echo "run_OpenWhisk_CDF_40-200 执行完成。"
+    just export_results 'OpenFaaS_CDF_{{trace}}'
+    @echo "run_OpenFaaS_CDF_{{trace}} 执行完成。"
 
 run_OpenFaaS_CDF:
-    @echo "run_OpenFaaS_CDF_20-600 开始执行。"
-    # test_data/20-600
+    just run_OpenFaaS 20-600
+    just run_OpenFaaS 30-300
+    just run_OpenFaaS 40-200
+
+run_SFS trace='20-600':    
+    @echo "run_SFS_CDF_{{trace}} 开始执行。"
+    # test_data/{{trace}}
     # agent 1-4
-    just run_controller 'test_data/20-600' '--selectBy random'
+    just run_controller 'test_data/{{trace}}' '--selectBy hash' 'm'
     just wait_ack_htop
     just comp_turnaround
-    just export_results 'OpenFaaS_CDF_20-600'
-    @echo "run_OpenFaaS_CDF_20-600 执行完成。"
-
-    @echo "run_OpenFaaS_CDF_30-300 开始执行。"
-    just run_controller 'test_data/30-300' '--selectBy random'
-    just wait_ack_htop
-    just comp_turnaround
-    just export_results 'OpenFaaS_CDF_30-300'
-    @echo "run_OpenFaaS_CDF_30-300 执行完成。"
-
-    @echo "run_OpenFaaS_CDF_40-200 开始执行。"
-    just run_controller 'test_data/40-200' '--selectBy random'
-    just wait_ack_htop
-    just comp_turnaround
-    just export_results 'OpenFaaS_CDF_40-200'
-    @echo "run_OpenFaaS_CDF_40-200 执行完成。"
+    just export_results 'SFS_CDF_{{trace}}'
+    @echo "run_SFS_CDF_{{trace}} 执行完成。"
 
 run_SFS_CDF:
-    @echo "run_SFS_CDF_20-600 开始执行。"
-    # test_data/20-600
-    # agent 1-4
-    just run_controller 'test_data/20-600' '--selectBy hash'
-    just wait_ack_htop
-    just comp_turnaround
-    just export_results 'SFS_CDF_20-600'
-    @echo "run_SFS_CDF_20-600 执行完成。"
-
-    @echo "run_SFS_CDF_30-300 开始执行。"
-    just run_controller 'test_data/30-300' '--selectBy hash'
-    just wait_ack_htop
-    just comp_turnaround
-    just export_results 'SFS_CDF_30-300'
-    @echo "run_SFS_CDF_30-300 执行完成。"
-
-    @echo "run_SFS_CDF_40-200 开始执行。"
-    just run_controller 'test_data/40-200' '--selectBy hash'
-    just wait_ack_htop
-    just comp_turnaround
-    just export_results 'SFS_CDF_40-200'
-    @echo "run_SFS_CDF_40-200 执行完成。"
+    just run_SFS 20-600
+    just run_SFS 30-300
+    just run_SFS 40-200
 
 run_synergy_CDF_no_allowAdjust:
     @echo "run_Synergy_CDF_no_allowAdjust_20-600 开始执行。"
@@ -380,7 +341,7 @@ run_SFS_CDF_hw:
     @echo "run_SFS_CDF_hw 开始执行。"
     # test_data/20-600
     # agent 1-4
-    just run_controller 'test_data/hw.csv' '--selectBy hash'
+    just run_controller 'test_data/hw.csv' '--selectBy hash' 'm'
     just wait_ack_htop
     just comp_turnaround
     just export_results 'SFS_CDF_hw'
@@ -391,7 +352,7 @@ run_SFS_CDF_wr:
     @echo "run_SFS_CDF_wr 开始执行。"
     # test_data/20-600
     # agent 1-4
-    just run_controller 'test_data/wr.csv' '--selectBy hash'
+    just run_controller 'test_data/wr.csv' '--selectBy hash' 'm'
     just wait_ack_htop
     just comp_turnaround
     just export_results 'SFS_CDF_wr'
@@ -410,7 +371,7 @@ test_threshold:
             const_file.close()
             time.sleep(1)
 
-            p1 = subprocess.Popen(["just", "run_synergy_CDF"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            p1 = subprocess.Popen(["just", "run_synergy_CDF_20_600"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             p2 = subprocess.Popen(["grep", "Average Turn-around Time:"], stdin=p1.stdout, stdout=subprocess.PIPE, text=True)
             p1.stdout.close()
             output, _ = p2.communicate()
