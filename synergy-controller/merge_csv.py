@@ -14,7 +14,7 @@ def merge_and_calculate_avg(csv_files, output_file):
         df = pd.read_csv(file)
         all_data.append(df)
     
-    merged_df = pd.concat(all_data, ignore_index=True).sort_values(by="turn-round time")
+    merged_df = pd.concat(all_data, ignore_index=True).sort_values(by="t0")
 
     # 计算平均周转时间
     avg_turnaround_time = merged_df["turn-round time"].mean()

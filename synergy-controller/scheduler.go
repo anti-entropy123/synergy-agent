@@ -59,7 +59,7 @@ const (
 	waitCompPeriod = 2 * time.Second
 	flushStPeriod  = 50 * time.Millisecond
 
-	timewindow = 20 // time.Millisecond
+	timewindow = 15 // time.Millisecond
 )
 
 // 节点状态结构体
@@ -320,32 +320,36 @@ func SendTaskListToNode(nodeIP string, tasks []*Task) {
 
 	url := fmt.Sprintf("http://%s:20251/set_reqs", nodeIP)
 
-	taskDataList := []string{}
-	for _, task := range tasks {
-		taskData := fmt.Sprintf("%s %s %d %d %d %s", task.Name, task.Script, task.Param, task.Arrival, task.Seq, task.ConStart)
-		taskDataList = append(taskDataList, taskData)
-	}
-
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer([]byte(strings.Join(taskDataList, "\n"))))
-	req.Header.Set("Content-Type", "text/plain")
-
-	client := &http.Client{}
 	go func() {
-		resp, err := client.Do(req)
-		defer resp.Body.Close()
+		client := &http.Client{}
 
+		startSortTime := time.Now()
+		wl := WindowList(tasks)
+		if statusMap[nodeIP].Policy == "f" {
+			sort.Sort(wl)
+		}
+		finishSortTime := time.Now()
+
+		taskDataList := []string{}
 		taskNames := []string{}
-		for _, task := range tasks {
+
+		for _, task := range wl {
+			taskData := fmt.Sprintf("%s %s %d %d %d %s", task.Name, task.Script, task.Param, task.Arrival, task.Seq, task.ConStart)
+			taskDataList = append(taskDataList, taskData)
 			taskNames = append(taskNames, task.Name)
 		}
 
+		req, _ := http.NewRequest("POST", url, bytes.NewBuffer([]byte(strings.Join(taskDataList, "\n"))))
+		req.Header.Set("Content-Type", "text/plain")
+
+		resp, err := client.Do(req)
+		defer resp.Body.Close()
+
 		if err != nil {
 			fmt.Printf("发送任务 %s 到节点 %s 失败: %v\n", strings.Join(taskNames, ","), nodeIP, err)
-			return
 		}
-		fmt.Printf("任务 %s 已成功发送到节点 %s\n", strings.Join(taskNames, ","), nodeIP)
+		fmt.Printf("任务 %s 已成功发送到节点 %s, 排序耗时: %v\n", strings.Join(taskNames, ","), nodeIP, finishSortTime.Sub(startSortTime))
 	}()
-
 }
 
 func doDispatch(tasks []*Task, partition bool, selectBy SelectFunc) []*Task {
@@ -381,8 +385,8 @@ func doDispatch(tasks []*Task, partition bool, selectBy SelectFunc) []*Task {
 		} else {
 			pendingTasks = append(pendingTasks, task)
 		}
-
 	}
+	
 	for ip, tasks := range tasksByNode {
 		SendTaskListToNode(ip, tasks)
 	}
@@ -456,20 +460,31 @@ func DispatchTasks(tasks []Task, partition bool, selectBy SelectFunc) {
 				task = &tasks[taskIdx]
 				taskIdx++
 				timeOffset += task.Arrival
-				current := time.Now()
+				current := startTime.Add(time.Duration(timeOffset) * time.Millisecond)
 
-				if taskIdx < len(tasks) {
-					delta := startTime.Add(time.Millisecond * time.Duration(timeOffset+tasks[taskIdx].Arrival)).Sub(current)
-					nextTaskTimer.Reset(delta)
+				for true {
+					// current := conStart.Add(time.Duration(timeOffset) * time.Millisecond)
+					task.ConStart = current.Format("2006-01-02 15:04:05.000")
+					fmt.Printf("将执行任务 %+v \n", task)
+
+					if len(doDispatch([]*Task{task}, partition, selectBy)) > 0 {
+						pendingTasks = append(pendingTasks, task)
+					}
+
+					if taskIdx < len(tasks) {
+						if tasks[taskIdx].Arrival == 0 {
+							task = &tasks[taskIdx]
+							taskIdx++
+							continue
+						} else {
+							delta := startTime.Add(time.Millisecond * time.Duration(timeOffset+tasks[taskIdx].Arrival)).Sub(time.Now())
+							nextTaskTimer.Reset(delta)
+						}
+					}
+
+					break
 				}
 
-				// current := conStart.Add(time.Duration(timeOffset) * time.Millisecond)
-				task.ConStart = current.Format("2006-01-02 15:04:05.000")
-				fmt.Printf("将执行任务 %+v \n", task)
-
-				if len(doDispatch([]*Task{task}, partition, selectBy)) > 0 {
-					pendingTasks = append(pendingTasks, task)
-				}
 			} else {
 				current := time.Now()
 				windowIterCnt += 1
@@ -500,21 +515,7 @@ func DispatchTasks(tasks []Task, partition bool, selectBy SelectFunc) {
 					continue
 				}
 
-				fmt.Println("按到达时间排序：")
-				for _, task := range windowList {
-					fmt.Printf("Name: %s, Param: %d, ConStart %s\n", task.Name, task.Param, task.ConStart)
-				}
-
-				wl := WindowList(windowList)
-				sort.Sort(wl)
-
-				fmt.Println("按执行时长排序：")
-				for _, task := range wl {
-					fmt.Printf("Name: %s, Param: %d, ConStart %s\n", task.Name, task.Param, task.ConStart)
-				}
-				fmt.Println()
-
-				pending := doDispatch(wl, partition, selectBy)
+				pending := doDispatch(windowList, partition, selectBy)
 				if len(pending) > 0 {
 					pendingTasks = append(pendingTasks, pending...)
 				}
@@ -718,10 +719,15 @@ func setup_agents(local bool, allowAdjust bool, partition bool, _select_by strin
 		// if select_by == "hash" || select_by == "random" {
 		// 	log.Fatalln("使用 hash 和 random 必须关闭 partition")
 		// }
+		baseAddr := 0
 		if allowAdjust {
-			nodeIPs = []string{"172.17.0.5", "172.17.0.6", "172.17.0.7", "172.17.0.8"}
+			baseAddr = 5
 		} else {
-			nodeIPs = []string{"172.17.0.9", "172.17.0.10", "172.17.0.11", "172.17.0.12"}
+			baseAddr = 13
+		}
+
+		for i := baseAddr; i < baseAddr+8; i++ {
+			nodeIPs = append(nodeIPs, fmt.Sprintf("172.17.0.%d", i))
 		}
 		return
 	}
@@ -730,7 +736,10 @@ func setup_agents(local bool, allowAdjust bool, partition bool, _select_by strin
 		log.Fatalln("使用 --allowAdjust 必须开启 --partition")
 	}
 
-	nodeIPs = []string{"172.17.0.13", "172.17.0.14", "172.17.0.15", "172.17.0.16"}
+	baseAddr := 21
+	for i := baseAddr; i < baseAddr+8; i++ {
+		nodeIPs = append(nodeIPs, fmt.Sprintf("172.17.0.%d", i))
+	}
 }
 
 func main() {

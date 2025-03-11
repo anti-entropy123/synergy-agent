@@ -1,16 +1,16 @@
 export_dir := "synergy-controller/export"
 
-run_synergy_CDF_hw:
+run_CDF_hw:
     just run_synergy hw_500_luan_poisson > {{export_dir}}/Synergy_hw_500_luan_poisson.log
-
-run_OpenFaaS_CDF_hw:
     just run_OpenFaaS hw_500_luan_poisson > {{export_dir}}/OpenFaaS_hw_500_luan_poisson.log
-
-run_OpenWhisk_CDF_hw:
     just run_OpenWhisk hw_500_luan_poisson > {{export_dir}}/OpenWhisk_hw_500_luan_poisson.log
-
-run_SFS_CDF_hw:
     just run_SFS hw_500_luan_poisson > {{export_dir}}/SFS_hw_500_luan_poisson.log
+
+run_CDF_wr:
+    just run_synergy wr_500_luan_poisson > {{export_dir}}/Synergy_wr_500_luan_poisson.log
+    just run_OpenFaaS wr_500_luan_poisson > {{export_dir}}/OpenFaaS_wr_500_luan_poisson.log
+    just run_OpenWhisk wr_500_luan_poisson > {{export_dir}}/OpenWhisk_wr_500_luan_poisson.log
+    just run_SFS wr_500_luan_poisson > {{export_dir}}/SFS_wr_500_luan_poisson.log
 
 test_threshold:
     #!/usr/bin/python3

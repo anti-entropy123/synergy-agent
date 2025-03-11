@@ -10,6 +10,7 @@ SFS-standalone/test_SFS_test1_And_test2
 synergy-controller/controller.log
 synergy-controller/no_cooperate.log
 synergy-controller/scheduler
+synergy-controller/export
 
 **/cpu_mem_usage.log
 **/*.pdf

@@ -120,7 +120,7 @@ for i in range(total_samples):
     if (i + 1) % low_load_interval == 0:
         arrival_time = low_load_interval_time
     else:
-        arrival_time = np.random.poisson(0.3)  # 这里假设 λ = 1，表示事件平均每单位时间发生1次
+        arrival_time = np.random.poisson(0.1)  # 这里假设 λ = 1，表示事件平均每单位时间发生1次
     
     data.append([f"fib{i+1}", "fib.py", lines[i], arrival_time, i+1])  # 第三列打乱，最后一列从1递增
 
