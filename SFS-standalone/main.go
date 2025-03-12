@@ -18,9 +18,14 @@ import (
 var (
 	policy   string
 	affinity string
-)
-var (
+
 	cache = make(chan PidI)
+
+	t1CacheLock = sync.Mutex{}
+	sfsT1Cache  = make(map[string]time.Time, 1000)
+
+	tcpuCacheLock = sync.Mutex{}
+	sfsTcpuCache  = make(map[string]syscall.Timeval, 1000)
 )
 
 func main() {
@@ -154,6 +159,14 @@ func runFunc(cpu int) func(http.ResponseWriter, *http.Request) {
 
 func testSFSWithTraces(cpu int, trace []Action, num int) {
 	for i := 0; i < len(trace); i++ {
+		t1CacheLock.Lock()
+		sfsT1Cache[trace[i].JobName] = time.Now()
+		t1CacheLock.Unlock()
+
+		tcpuCacheLock.Lock()
+		sfsTcpuCache[trace[i].JobName] = syscall.Timeval{}
+		tcpuCacheLock.Unlock()
+
 		Send(trace[i], cache)
 		job := trace[i]
 		o := time.Now()

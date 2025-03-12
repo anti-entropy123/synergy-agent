@@ -4,7 +4,7 @@ import matplotlib
 # 将两个文件的第三列分别放在两个数组里：
 import pandas as pd
 
-trace = "hw"
+trace = "wr"
 
 # 读取第一个CSV文件
 df1 = pd.read_csv(f'/home/tank/chm/synergy-agent/synergy-controller/export/result_Synergy_CDF_{trace}_500_luan_poisson/result/agent1_8.csv')
@@ -69,4 +69,4 @@ plt.legend()
 plt.grid(True)
 # plt.show()
 
-plt.savefig("./output.pdf")
+plt.savefig("./pdf/output.pdf")

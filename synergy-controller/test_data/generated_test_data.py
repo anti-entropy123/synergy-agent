@@ -22,21 +22,21 @@ import numpy as np
 #     35: 2.52
 # }
 
-ratios = {
-    20: 51.89,
-    21: 0.84 + 2.52 + 2.17 + 5.04,
-    22: 0.14,
-    23: 1.89,
-    24: 4.83,
-    25: 0.63,
-    26: 3.15,
-    27: 0.14,
-    28: 2.87,
-    29: 8.54,
-    30: 7.56,
-    31: 6.50,
-    32: 1.27,
-}
+# ratios = {
+#     20: 51.89,
+#     21: 0.84 + 2.52 + 2.17 + 5.04,
+#     22: 0.14,
+#     23: 1.89,
+#     24: 4.83,
+#     25: 0.63,
+#     26: 3.15,
+#     27: 0.14,
+#     28: 2.87,
+#     29: 8.54,
+#     30: 7.56,
+#     31: 6.50,
+#     32: 1.27,
+# }
 
 # # 定义占比数据-华为
 # ratios = {
@@ -66,13 +66,20 @@ ratios = {
 #     35: 25.60
 # }
 
-# # 定义占比数据-微软
+# 定义占比数据-微软
 # ratios = {
 #     20: 42.9,
 #     27: 17.2,
 #     30: 16.7,
 #     32: 23.2
 # }
+
+ratios = {
+    20: 42.9,
+    27: 27.2,
+    30: 26.7,
+    32: 3.2
+}
 
 # 计算每个数值对应的数量
 low_load_interval = 50
@@ -130,7 +137,7 @@ df = pd.DataFrame(data, columns=["ID", "Script", "Line", "Arg1", "Arg2"])
 # 保存为 CSV 文件
 # csv_filename = "hw_1000.csv"
 # csv_filename = "hw.csv"
-csv_filename = f"hw_{total_samples}_luan_poisson"
+csv_filename = f"wr_{total_samples}_luan_poisson"
 df.to_csv(csv_filename, index=False, header=False, sep=' ')
 
 print(f"CSV 文件已生成: {csv_filename}")

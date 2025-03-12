@@ -33,6 +33,17 @@ func Send(job Action, pids chan PidI) {
 	pids <- new_pid
 }
 
+func updateSFSCPUTime(jobname string, utime syscall.Timeval) {
+	tcpuCacheLock.Lock()
+	// 将 userCpuTime 累加至 sfsTcpuCache[job.JobName]
+	val := sfsTcpuCache[jobname]
+	usec := val.Usec + utime.Usec
+	val.Sec += usec / 1000000
+	val.Usec = usec % 1000000
+	sfsTcpuCache[jobname] = val
+	tcpuCacheLock.Unlock()
+}
+
 func Execute(job PidI, p string, pids chan PidI, core string, queue chan PidI, cmd *exec.Cmd, t1 time.Time) {
 	// // execute request and also update job direction
 	// var cmd *exec.Cmd
@@ -78,8 +89,12 @@ func Execute(job PidI, p string, pids chan PidI, core string, queue chan PidI, c
 		log.Fatal("exec 2", err)
 	}
 	t2 := time.Now()
+	userCpuTime := cmd.ProcessState.SysUsage().(*syscall.Rusage).Utime
 	fmt.Println("cmd.Wait", t2, ", context switch ", cmd.ProcessState.SysUsage().(*syscall.Rusage).Nivcsw, job.Job)
-	fmt.Println("User CPU Time ", cmd.ProcessState.SysUsage().(*syscall.Rusage).Utime, job.Job)
+	fmt.Println("User CPU Time ", userCpuTime, job.Job)
+
+	updateSFSCPUTime(job.Job, userCpuTime)
+
 	// fmt.Println("System CPU Time ", cmd.ProcessState.SysUsage().(*syscall.Rusage).Stime, job.Job)
 	new_pid.Credit = -2
 	pids <- new_pid

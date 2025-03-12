@@ -84,13 +84,26 @@ func receive(in chan PidI, queue chan PidI, core string, wg *sync.WaitGroup, num
 				credits[x.Id] = -2
 				num_job += 1
 
+				t1CacheLock.Lock()
+				t1 := sfsT1Cache[x.Job]
+				t1CacheLock.Unlock()
+
+				tcpuCacheLock.Lock()
+				utime := sfsTcpuCache[x.Job]
+				tcpuCacheLock.Unlock()
+
+				fmt.Println("User CPU Time ", utime, x.Job)
+				// fmt.Printf("receive t1=%v\n", t1)
+				// if exist {
 				t2 := time.Now()
 				t0, err := time.ParseInLocation("2006-01-02 15:04:05.000", x.t0, time.Local)
 				if err != nil {
 					fmt.Printf("parse conStart failed, err=%v\n", err)
 					panic(err)
 				}
-				fmt.Println(x.Job, x.t0[11:], 0, t2.Format("15:04:05.000"), 0, 0, t2.Sub(t0).Milliseconds())
+				// }
+				fmt.Println(x.Job, x.t0[11:], t1.Format("15:04:05.000"), t2.Format("15:04:05.000"), t1.Sub(t0).Milliseconds(), t2.Sub(t1).Milliseconds(), t2.Sub(t0).Milliseconds())
+
 				// fmt.Println(x.Job, time.Now().Sub(t0).Milliseconds())
 				//fmt.Println("nums", num_job)
 				if num_job >= num {

@@ -386,7 +386,7 @@ func doDispatch(tasks []*Task, partition bool, selectBy SelectFunc) []*Task {
 			pendingTasks = append(pendingTasks, task)
 		}
 	}
-	
+
 	for ip, tasks := range tasksByNode {
 		SendTaskListToNode(ip, tasks)
 	}
@@ -430,6 +430,7 @@ func DispatchTasks(tasks []Task, partition bool, selectBy SelectFunc) {
 	var taskIdx = 0
 	var startTime = time.Now()
 	var windowIterCnt = 0
+	var waitInWindow = 0
 
 	nextTaskTimer := time.NewTimer(time.Millisecond * time.Duration(tasks[0].Arrival))
 	if partition {
@@ -484,7 +485,6 @@ func DispatchTasks(tasks []Task, partition bool, selectBy SelectFunc) {
 
 					break
 				}
-
 			} else {
 				current := time.Now()
 				windowIterCnt += 1
@@ -494,18 +494,19 @@ func DispatchTasks(tasks []Task, partition bool, selectBy SelectFunc) {
 				var windowList []*Task
 				windowOffset := 0
 				for taskIdx < len(tasks) {
+					waitTime := 0
 					task = &tasks[taskIdx]
 
 					if windowOffset+task.Arrival > timewindow {
-						task.Arrival -= (timewindow - windowOffset)
+						task.Arrival -= timewindow - windowOffset
 						break
 					}
 					windowOffset += task.Arrival
 					taskIdx++
-
-					// current := conStart.Add(time.Duration(timeOffset+windowOffset) * time.Millisecond)
-					// task.ConStart = getCurrentTime()
-					task.ConStart = current.Add(-time.Duration(timewindow-windowOffset) * time.Millisecond).Format("2006-01-02 15:04:05.000")
+					waitTime = timewindow - windowOffset
+					// fmt.Printf("task %s 等待 %d ms\n", task.Name, waitTime)
+					waitInWindow += waitTime
+					task.ConStart = current.Add(-time.Duration(waitTime) * time.Millisecond).Format("2006-01-02 15:04:05.000")
 
 					windowList = append(windowList, task)
 				}
@@ -531,6 +532,8 @@ func DispatchTasks(tasks []Task, partition bool, selectBy SelectFunc) {
 			pendingTasks = doDispatch(tasks, partition, selectBy)
 		}
 	}
+
+	fmt.Printf("排序窗口总等待平均时间为%d\n", waitInWindow/len(tasks))
 }
 
 // 计算分区平均 CPU 负载
