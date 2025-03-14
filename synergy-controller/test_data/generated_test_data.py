@@ -74,70 +74,181 @@ import numpy as np
 #     32: 23.2
 # }
 
-ratios = {
-    20: 42.9,
-    27: 27.2,
-    30: 26.7,
-    32: 3.2
-}
+# ratios = {
+#     20: 42.9,
+#     27: 27.2,
+#     30: 26.7,
+#     32: 3.2
+# }
 
-# 计算每个数值对应的数量
-low_load_interval = 50
-low_load_interval_time = 2000
-total_samples = 500
+def gen_poisson_data():
+    # 计算每个数值对应的数量
+    low_load_interval = 50
+    low_load_interval_time = 2000
+    total_samples = 500
 
-counts = {k: int(v / 100 * total_samples) for k, v in ratios.items()}
+    counts = {k: int(v / 100 * total_samples) for k, v in ratios.items()}
 
-# 确保总数为 1000，调整误差
-actual_total = sum(counts.values())
-diff = total_samples - actual_total
-keys = list(counts.keys())
+    # 确保总数为 1000，调整误差
+    actual_total = sum(counts.values())
+    diff = total_samples - actual_total
+    keys = list(counts.keys())
 
-# 调整误差
-for _ in range(abs(diff)):
-    if diff > 0:
-        counts[random.choice(keys)] += 1
-    elif diff < 0:
-        key = random.choice([k for k in keys if counts[k] > 0])
-        counts[key] -= 1
+    # 调整误差
+    for _ in range(abs(diff)):
+        if diff > 0:
+            counts[random.choice(keys)] += 1
+        elif diff < 0:
+            key = random.choice([k for k in keys if counts[k] > 0])
+            counts[key] -= 1
 
-# 生成测试数据
-data = []
-index = 1
+    # 生成测试数据
+    data = []
+    index = 1
 
-# 按照顺序生成
-# for value, count in counts.items():
-#     for _ in range(count):
-#         data.append([f"fib{index}", "fib.py", value, 0, index])  # 第三列按照比例分配，最后一列从1递增
-#         index += 1
+    # 按照顺序生成
+    # for value, count in counts.items():
+    #     for _ in range(count):
+    #         data.append([f"fib{index}", "fib.py", value, 0, index])  # 第三列按照比例分配，最后一列从1递增
+    #         index += 1
 
-# 将所有的 Line（第三列）值按照占比要求生成
-lines = []
-for value, count in counts.items():
-    for _ in range(count):
-        lines.append(value)
+    # 将所有的 Line（第三列）值按照占比要求生成
+    lines = []
+    for value, count in counts.items():
+        for _ in range(count):
+            lines.append(value)
 
-# 打乱第三列数据
-random.shuffle(lines)
+    # 打乱第三列数据
+    random.shuffle(lines)
 
 
-# 根据打乱后的数据生成对应的数据行
-for i in range(total_samples):
-    # 使用泊松分布生成第四列数据，lambda 参数可以根据需求调整
-    if (i + 1) % low_load_interval == 0:
-        arrival_time = low_load_interval_time
-    else:
-        arrival_time = np.random.poisson(0.1)  # 这里假设 λ = 1，表示事件平均每单位时间发生1次
+    # 根据打乱后的数据生成对应的数据行
+    for i in range(total_samples):
+        # 使用泊松分布生成第四列数据，lambda 参数可以根据需求调整
+        if (i + 1) % low_load_interval == 0:
+            arrival_time = low_load_interval_time
+        else:
+            arrival_time = np.random.poisson(0.1)  # 这里假设 λ = 1，表示事件平均每单位时间发生1次
+        
+        data.append([f"fib{i+1}", "fib.py", lines[i], arrival_time, i+1])  # 第三列打乱，最后一列从1递增
+
+    # 转换为 DataFrame
+    df = pd.DataFrame(data, columns=["ID", "Script", "Line", "Arg1", "Arg2"])
+
+    # 保存为 CSV 文件
+    # csv_filename = "hw_1000.csv"
+    # csv_filename = "hw.csv"
+    csv_filename = f"wr_{total_samples}_luan_poisson"
+    df.to_csv(csv_filename, index=False, header=False, sep=' ')
+
+    print(f"CSV 文件已生成: {csv_filename}")
+
+def gen_burst_data():
+    trace = 'wr'
+
+    if trace == 'hw':
+        ratios = {
+            20: 51.89,
+            21: 0.84 ,
+            22: 0.14,
+            23: 1.89,
+            24: 4.83,
+            25: 0.63,
+            26: 3.15,
+            27: 0.14,
+            28: 2.87,
+            29: 8.54,
+            30: 7.56,
+            31: 6.50,
+            32: 1.27,
+            33: 2.52 + 2.17 + 5.04,
+        }
+    elif trace == 'wr':
+        ratios = {
+            20: 45.9,
+            27: 17.2,
+            30: 16.7,
+            32: 20.2
+        }
+
+    sum_num = 500
+    n2nums = {n: round(ratio * sum_num / 100) for n, ratio in ratios.items()}
     
-    data.append([f"fib{i+1}", "fib.py", lines[i], arrival_time, i+1])  # 第三列打乱，最后一列从1递增
+    long_funcs = []
+    short_funcs = []
+    for n, num in n2nums.items():
+        if n >= 32:
+            long_funcs.extend([n] * num)
+        else:
+            short_funcs.extend([n] * num)
+    
+    random.shuffle(long_funcs)
+    random.shuffle(short_funcs)
+    print(len(long_funcs), len(short_funcs))
 
-# 转换为 DataFrame
-df = pd.DataFrame(data, columns=["ID", "Script", "Line", "Arg1", "Arg2"])
+    data = []
+    for i in range(len(short_funcs)):
+        idx = i+len(long_funcs)
+        data.append([f"fib{idx+1}", "fib.py", str(short_funcs[i]), str(0), str(idx+1)])
+    
+    # data.append(['FORCEADJUST', 'S', '8'])
+    data.append(['FORCEADJUST', 'L', '8'])
+    for i in range(len(long_funcs)):
+        data.append([f"fib{i+1}", "fib.py", long_funcs[i], 0, i+1])
+    
+    data[len(short_funcs)+1][-2] = 8000
 
-# 保存为 CSV 文件
-# csv_filename = "hw_1000.csv"
-# csv_filename = "hw.csv"
-csv_filename = f"wr_{total_samples}_luan_poisson"
-df.to_csv(csv_filename, index=False, header=False, sep=' ')
+    df = pd.DataFrame(data, columns=["ID", "Script", "Line", "Arg1", "Arg2"])
 
-print(f"CSV 文件已生成: {csv_filename}")
+    csv_filename = f"{trace}_{sum_num}_burst"
+    df.to_csv(csv_filename, index=False, header=False, sep=' ')
+
+def gen_slo_data():
+    trace = 'wr'
+    if trace == 'hw':
+        ratios = {
+            20: 51.89,
+            21: 0.84 ,
+            22: 0.14,
+            23: 1.89,
+            24: 4.83,
+            25: 0.63,
+            26: 3.15,
+            27: 0.14,
+            28: 2.87,
+            29: 8.54,
+            30: 7.56,
+            31: 6.50,
+            32: 1.27,
+            33: 2.52 + 2.17 + 5.04,
+        }
+    elif trace == 'wr':
+        ratios = {
+            20: 45.9,
+            27: 17.2,
+            30: 16.7,
+            32: 20.2
+        }
+
+    sum_num = 100
+    n2nums = {n: round(ratio * sum_num / 100) for n, ratio in ratios.items()}
+    args = []
+    for n, num in n2nums.items():
+        args.extend([n] * num)
+    
+    random.shuffle(args)
+
+    data = []
+    for i, n in enumerate(args):
+        data.append([f"fib{i+1}", "fib.py", str(n), str(0), str(i+1)])
+
+    group_size = 10
+    for i in range(group_size, sum_num, group_size): 
+        data[i][-2] = '1500'
+    
+    df = pd.DataFrame(data, columns=["ID", "Script", "Line", "Arg1", "Arg2"])
+
+    csv_filename = f"{trace}_{sum_num}_slo"
+    df.to_csv(csv_filename, index=False, header=False, sep=' ')
+
+gen_slo_data()

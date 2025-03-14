@@ -9,43 +9,46 @@ console_redirect := if silence == "1" {
 start_agent:
     #!/usr/bin/bash
     for i in {1..8}; do
-        docker run --rm -d --cap-add SYS_NICE --name agent-$i synergy-agent ./main -a $((i * 2)) -p c
+        docker run -d --cap-add SYS_NICE --name agent-$i synergy-agent ./main -a $((i * 2)) -p c
     done
 
     echo "所有synergy agent 容器已启动。"
 
 stop_agent:
-    docker stop agent-1 agent-2 agent-3 agent-4 agent-5 agent-6 agent-7 agent-8
+    -docker stop agent-1 agent-2 agent-3 agent-4 agent-5 agent-6 agent-7 agent-8
+    -docker rm agent-1 agent-2 agent-3 agent-4 agent-5 agent-6 agent-7 agent-8
 
 start_nocoop_agent:
-    docker run --rm -d --cap-add SYS_NICE --name agent-11 synergy-agent ./main -a 22 -p f
-    docker run --rm -d --cap-add SYS_NICE --name agent-12 synergy-agent ./main -a 24 -p f
-    docker run --rm -d --cap-add SYS_NICE --name agent-13 synergy-agent ./main -a 26 -p f
-    docker run --rm -d --cap-add SYS_NICE --name agent-14 synergy-agent ./main -a 28 -p f
-    docker run --rm -d --cap-add SYS_NICE --name agent-15 synergy-agent ./main -a 30 -p f
-    docker run --rm -d --cap-add SYS_NICE --name agent-16 synergy-agent ./main -a 32 -p f
-    docker run --rm -d --cap-add SYS_NICE --name agent-17 synergy-agent ./main -a 34 -p c
-    docker run --rm -d --cap-add SYS_NICE --name agent-18 synergy-agent ./main -a 36 -p c
+    docker run -d --cap-add SYS_NICE --name agent-11 synergy-agent ./main -a 22 -p f
+    docker run -d --cap-add SYS_NICE --name agent-12 synergy-agent ./main -a 24 -p f
+    docker run -d --cap-add SYS_NICE --name agent-13 synergy-agent ./main -a 26 -p f
+    docker run -d --cap-add SYS_NICE --name agent-14 synergy-agent ./main -a 28 -p f
+    docker run -d --cap-add SYS_NICE --name agent-15 synergy-agent ./main -a 30 -p f
+    docker run -d --cap-add SYS_NICE --name agent-16 synergy-agent ./main -a 32 -p f
+    docker run -d --cap-add SYS_NICE --name agent-17 synergy-agent ./main -a 34 -p c
+    docker run -d --cap-add SYS_NICE --name agent-18 synergy-agent ./main -a 36 -p c
 
     echo "所有synergy nocoop agent 容器已启动。"
 
 stop_nocoop_agent:
-    docker stop agent-11 agent-12 agent-13 agent-14 agent-15 agent-16 agent-17 agent-18
+    -docker stop agent-11 agent-12 agent-13 agent-14 agent-15 agent-16 agent-17 agent-18
+    -docker rm agent-11 agent-12 agent-13 agent-14 agent-15 agent-16 agent-17 agent-18
 
 start_sfs_agent:
-    docker run --rm -d --cap-add SYS_NICE --name agent-21 synergy-agent ./main -a 42 -p m
-    docker run --rm -d --cap-add SYS_NICE --name agent-22 synergy-agent ./main -a 44 -p m
-    docker run --rm -d --cap-add SYS_NICE --name agent-23 synergy-agent ./main -a 46 -p m
-    docker run --rm -d --cap-add SYS_NICE --name agent-24 synergy-agent ./main -a 48 -p m
-    docker run --rm -d --cap-add SYS_NICE --name agent-25 synergy-agent ./main -a 50 -p m
-    docker run --rm -d --cap-add SYS_NICE --name agent-26 synergy-agent ./main -a 52 -p m
-    docker run --rm -d --cap-add SYS_NICE --name agent-27 synergy-agent ./main -a 54 -p m
-    docker run --rm -d --cap-add SYS_NICE --name agent-28 synergy-agent ./main -a 56 -p m
+    docker run -d --cap-add SYS_NICE --name agent-21 synergy-agent ./main -a 42 -p m
+    docker run -d --cap-add SYS_NICE --name agent-22 synergy-agent ./main -a 44 -p m
+    docker run -d --cap-add SYS_NICE --name agent-23 synergy-agent ./main -a 46 -p m
+    docker run -d --cap-add SYS_NICE --name agent-24 synergy-agent ./main -a 48 -p m
+    docker run -d --cap-add SYS_NICE --name agent-25 synergy-agent ./main -a 50 -p m
+    docker run -d --cap-add SYS_NICE --name agent-26 synergy-agent ./main -a 52 -p m
+    docker run -d --cap-add SYS_NICE --name agent-27 synergy-agent ./main -a 54 -p m
+    docker run -d --cap-add SYS_NICE --name agent-28 synergy-agent ./main -a 56 -p m
 
     echo "所有synergy sfs agent 容器已启动。"
 
 stop_sfs_agent:
-    docker stop agent-21 agent-22 agent-23 agent-24 agent-25 agent-26 agent-27 agent-28
+    -docker stop agent-21 agent-22 agent-23 agent-24 agent-25 agent-26 agent-27 agent-28
+    -docker rm agent-21 agent-22 agent-23 agent-24 agent-25 agent-26 agent-27 agent-28
 
 start_all: start_agent start_nocoop_agent start_sfs_agent
 stop_all: stop_agent stop_nocoop_agent stop_sfs_agent
@@ -90,7 +93,7 @@ reset_policy policy='c':
     curl -s -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.8:20251/change_policy
     curl -s -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.9:20251/change_policy
     curl -s -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.10:20251/change_policy
-    curl -s -X POST -H "Content-Type: text/plain" --data 'c' http://172.17.0.11:20251/change_policy
+    curl -s -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.11:20251/change_policy
     curl -s -X POST -H "Content-Type: text/plain" --data 'c' http://172.17.0.12:20251/change_policy
 
     curl -s -X POST -H "Content-Type: text/plain" --data 'f' http://172.17.0.13:20251/change_policy
@@ -156,6 +159,34 @@ comp_turnaround: export_agent_log gen_csv
     cd synergy-controller/result && wc -l agent11_18.csv
     cd synergy-controller/result && wc -l agent21_28.csv
 
+comp_slo_violate trace:
+    #!/usr/bin/python3
+    import pandas as pd
+
+    slo_ratio = 1.5
+
+    def violate_slo(item):
+        # if item['cpu time'] < 480:
+        #     return False
+        result = (20 + item['cpu time']* slo_ratio ) < item['turn-round time']
+        # if result:
+        #     print(item['proc_name'], item['t1-t0'], item['t2-t1'], item['cpu time'], item['turn-round time'])
+        return result
+
+    trace = "{{trace}}_100"
+    hw_sg_trace = pd.read_csv(f'./synergy-controller/export/result_Synergy_CDF_{trace}_slo/result/agent1_8.csv')
+    print("synergy SLO 违约率:", 100 * sum([1 for item in hw_sg_trace.iloc() if violate_slo(item)])/100)
+
+    hw_of_trace = pd.read_csv(f'./synergy-controller/export/result_OpenFaaS_CDF_{trace}_slo/result/agent21_28.csv')
+    print("openfaas SLO 违约率:", 100 * sum([1 for item in hw_of_trace.iloc() if violate_slo(item)])/100)
+
+    hw_ow_trace = pd.read_csv(f'./synergy-controller/export/result_OpenWhisk_CDF_{trace}_slo/result/agent21_28.csv')
+    print("openwhisk SLO 违约率:", 100 * sum([1 for item in hw_ow_trace.iloc() if violate_slo(item)])/100)
+
+    hw_sfs_trace = pd.read_csv(f'./synergy-controller/export/result_SFS_CDF_{trace}_slo/result/agent21_28.csv')
+    print("sfs SLO 违约率:", 100 * sum([1 for item in hw_sfs_trace.iloc() if violate_slo(item)])/100)
+
+
 send_reqs trace='test_tiny':
     curl -X POST -H "Content-Type: text/plain" --data-binary @synergy/test_data/{{trace}} http://localhost:20251/set_reqs
 
@@ -182,7 +213,7 @@ wait_ack_htop:
     #!/usr/bin/bash
 
     # read -p "检查 htop 后继续: "
-    sleep 5
+    sleep 10
 
 export_results label:
     -rm -r synergy-controller/export/result_{{label}}
@@ -197,6 +228,16 @@ run_synergy trace='20-600':
     just comp_turnaround
     just export_results 'Synergy_CDF_{{trace}}'
     @echo "run_Synergy_CDF_{{trace}} 执行完成。"
+
+run_synergy_force trace='20-600': 
+    @echo "run_Synergy_force_CDF_{{trace}} 开始执行。"
+    # test_data/20-600
+    # agent 1-4
+    just run_controller 'test_data/{{trace}}' '--allowAdjust --forceAdjust --partition --selectBy hash'
+    just wait_ack_htop
+    just comp_turnaround
+    just export_results 'Synergy_force_CDF_{{trace}}'
+    @echo "run_Synergy_force_CDF_{{trace}} 执行完成。"
 
 run_synergy_CDF:
     just run_synergy 20-600

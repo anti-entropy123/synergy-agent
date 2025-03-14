@@ -1,42 +1,63 @@
 export_dir := "synergy-controller/export"
 
+wait_ack_htop:
+    #!/usr/bin/bash
+
+    read -p "检查 htop 后继续: "
+    # sleep 5
+
+sec_run_CDF trace:
+    just run_synergy {{trace}}_500_luan_poisson | tee {{export_dir}}/Synergy_{{trace}}_500_luan_poisson.log
+    just run_OpenFaaS {{trace}}_500_luan_poisson | tee {{export_dir}}/OpenFaaS_{{trace}}_500_luan_poisson.log
+    just run_OpenWhisk {{trace}}_500_luan_poisson | tee {{export_dir}}/OpenWhisk_{{trace}}_500_luan_poisson.log
+    just run_SFS {{trace}}_500_luan_poisson | tee {{export_dir}}/SFS_{{trace}}_500_luan_poisson.log
+
 sec3_run_CDF_hw:
-    just run_synergy hw_500_luan_poisson > {{export_dir}}/Synergy_hw_500_luan_poisson.log
-    just run_OpenFaaS hw_500_luan_poisson > {{export_dir}}/OpenFaaS_hw_500_luan_poisson.log
-    just run_OpenWhisk hw_500_luan_poisson > {{export_dir}}/OpenWhisk_hw_500_luan_poisson.log
-    just run_SFS hw_500_luan_poisson > {{export_dir}}/SFS_hw_500_luan_poisson.log
+    just -f poisson.justfile sec3_run_CDF hw
 
 sec3_run_CDF_wr:
-    just run_synergy wr_500_luan_poisson > {{export_dir}}/Synergy_wr_500_luan_poisson.log
-    just run_OpenFaaS wr_500_luan_poisson > {{export_dir}}/OpenFaaS_wr_500_luan_poisson.log
-    just run_OpenWhisk wr_500_luan_poisson > {{export_dir}}/OpenWhisk_wr_500_luan_poisson.log
-    just run_SFS wr_500_luan_poisson > {{export_dir}}/SFS_wr_500_luan_poisson.log
+    just -f poisson.justfile sec3_run_CDF wr
+
+sec3_run_SLO trace:
+    # 还可以试试 c=1 的配置. 
+    just run_synergy {{trace}}_100_slo | tee {{export_dir}}/Synergy_{{trace}}_100_slo.log
+    just run_OpenFaaS {{trace}}_100_slo | tee {{export_dir}}/OpenFaaS_{{trace}}_100_slo.log
+    just run_OpenWhisk {{trace}}_100_slo | tee {{export_dir}}/OpenWhisk_{{trace}}_100_slo.log
+    just run_SFS {{trace}}_100_slo | tee {{export_dir}}/SFS_{{trace}}_100_slo.log
+
+    just comp_slo_violate {{trace}} >> {{export_dir}}/sec3_slo_box_{{trace}}.log
 
 sec3_run_SLO_hw:
-    just run_synergy hw_100_luan_poisson > {{export_dir}}/Synergy_hw_100_luan_poisson.log
-    just run_OpenFaaS hw_100_luan_poisson > {{export_dir}}/OpenFaaS_hw_100_luan_poisson.log
-    just run_OpenWhisk hw_100_luan_poisson > {{export_dir}}/OpenWhisk_hw_100_luan_poisson.log
-    just run_SFS hw_100_luan_poisson > {{export_dir}}/SFS_hw_100_luan_poisson.log
+    just -f poisson.justfile sec3_run_SLO hw
 
-test_threshold:
-    #!/usr/bin/python3
-    import subprocess
-    import time
+sec3_run_SLO_wr:
+    just -f poisson.justfile sec3_run_SLO wr
+
+sec3_run_SLO_box:
+    # echo '' > {{export_dir}}/sec3_slo_box_hw.log
+    # for i in $(seq 1 10); do \
+        # just -f poisson.justfile sec3_run_SLO_hw ;\
+    # done
+
+    echo '' > {{export_dir}}/sec3_slo_box_wr.log
+    for i in $(seq 1 10); do \
+        just -f poisson.justfile sec3_run_SLO_wr ;\
+    done
+
+sec4_run_forceadj trace:
+    just run_synergy_force '{{trace}}_500_burst' | tee {{export_dir}}/Synergy_force_{{trace}}_500_burst.log | grep 'Average Turn-around Time:'
+    just run_OpenFaaS '{{trace}}_500_burst' | tee {{export_dir}}/OpenFaaS_{{trace}}_500_burst.log | grep 'Average Turn-around Time:'
+    just run_OpenWhisk '{{trace}}_500_burst' | tee {{export_dir}}/OpenWhisk_{{trace}}_500_burst.log | grep 'Average Turn-around Time:'
+    just run_SFS '{{trace}}_500_burst' | tee {{export_dir}}/SFS_{{trace}}_500_burst.log | grep 'Average Turn-around Time:'
     
-    for not_busy in range(5, 90, 5):
-        for busy in range(not_busy, 90, 5):
-            print("not_busy: ", not_busy, "busy: ", busy)
-            const_file = open("./synergy-controller/const.h", "w")
-            const_file.write(f"#define NOT_BUSY_THRESHOLD {not_busy}\n#define BUSY_THRESHOLD {busy}\n")
-            const_file.close()
-            time.sleep(1)
+    just run_synergy '{{trace}}_500_burst' | tee {{export_dir}}/Synergy_{{trace}}_500_burst.log 
+    just -f poisson.justfile wait_ack_htop
+    just comp_turnaround | grep 'Average Turn-around Time:'
+    just export_results 'Synergy_CDF_{{trace}}_500_burst'
+    @echo "run_Synergy_CDF_{{trace}}_500_burst 执行完成。"
 
-            p1 = subprocess.Popen(["just", "run_synergy", "hw_100_luan_poisson"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            p2 = subprocess.Popen(["grep", "Average Turn-around Time:"], stdin=p1.stdout, stdout=subprocess.PIPE, text=True)
-            p1.stdout.close()
-            output, _ = p2.communicate()
-            if p2.returncode != 0:
-                print("run_synergy_CDF failed")
-                exit(1)
+sec4_run_forceadj_hw:
+    just -f 'poisson.justfile' sec4_run_forceadj hw
 
-            print(output.strip())
+sec4_run_forceadj_wr:
+    just -f 'poisson.justfile' sec4_run_forceadj wr

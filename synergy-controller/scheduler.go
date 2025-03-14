@@ -43,8 +43,9 @@ var (
 	flushDoneChan  chan bool = make(chan bool, 0)
 
 	// 标记预先分区调整.
-	forceAdjustLock sync.Mutex
-	forceAdjust     []ForceAdjustCommand = make([]ForceAdjustCommand, 0, 1)
+	allowForceAdjust bool = false
+	forceAdjustLock  sync.Mutex
+	forceAdjust      []ForceAdjustCommand = make([]ForceAdjustCommand, 0, 1)
 )
 
 type ForceAdjustCommand struct {
@@ -82,6 +83,10 @@ type Task struct {
 }
 
 func updateForceAdjust(commd ForceAdjustCommand) {
+	if !allowForceAdjust {
+		return
+	}
+
 	fmt.Println("updateForceAdjust")
 	forceAdjustLock.Lock()
 	defer forceAdjustLock.Unlock()
@@ -204,7 +209,7 @@ func UpdateNodeStatus() {
 }
 
 func isLongTask(task *Task) bool {
-	return task.Param >= 32
+	return task.Param >= 35
 	// return false
 }
 
@@ -281,15 +286,15 @@ func SelectBestNode(statusMap map[string]NodeStatus, task *Task, partition bool,
 		if status.CPUUsage >= 80 {
 			continue
 		}
-		// if partition && status.Policy != policy {
-		// 允许短任务被分到 cfs; 反之不允许.
-		if partition {
-			if policy == "c" && status.Policy == "f" {
-				continue
-				// } else if policy == "f" && status.Policy == "c" && status.CPUUsage > 50 {
-				// 	continue
-			}
+		if partition && status.Policy != policy {
+			// 允许短任务被分到 cfs; 反之不允许.
+			// if partition {
+			// 	if policy == "c" && status.Policy == "f" {
+			// 		continue
+			// 		} else if policy == "f" && status.Policy == "c" && status.CPUUsage > 50 {
+			continue
 		}
+		// }
 
 		nodes[ip] = status
 	}
@@ -334,6 +339,10 @@ func SendTaskListToNode(nodeIP string, tasks []*Task) {
 		taskNames := []string{}
 
 		for _, task := range wl {
+			if task.Name == FORCEADJUSTOP {
+				continue
+			}
+
 			taskData := fmt.Sprintf("%s %s %d %d %d %s", task.Name, task.Script, task.Param, task.Arrival, task.Seq, task.ConStart)
 			taskDataList = append(taskDataList, taskData)
 			taskNames = append(taskNames, task.Name)
@@ -364,6 +373,18 @@ func doDispatch(tasks []*Task, partition bool, selectBy SelectFunc) []*Task {
 
 	pendingTasks := []*Task{}
 	for _, task := range tasks {
+		// FORCEADJUST L 3 | FORCEADJUST S 5
+		if task.Name == FORCEADJUSTOP {
+			script := strings.ToUpper(task.Script)
+			if !(script == "L" || script == "S") {
+				log.Fatalf("Bad FORCEADJUST COMMAND, partition=%s\n", script)
+			}
+
+			commd := ForceAdjustCommand{partition: script, nums: task.Param}
+			updateForceAdjust(commd)
+			continue
+		}
+
 		longTask := isLongTask(task)
 
 		if longTask {
@@ -440,19 +461,6 @@ func DispatchTasks(tasks []Task, partition bool, selectBy SelectFunc) {
 	// conStart := time.Now()
 
 	for taskIdx < len(tasks) || len(pendingTasks) > 0 {
-		// FORCEADJUST L 3 | FORCEADJUST S 5
-		if taskIdx < len(tasks) && tasks[taskIdx].Name == FORCEADJUSTOP {
-			script := strings.ToUpper(tasks[taskIdx].Script)
-			if !(script == "L" || script == "S") {
-				log.Fatalf("Bad FORCEADJUST COMMAND, partition=%s\n", script)
-			}
-
-			commd := ForceAdjustCommand{partition: script, nums: tasks[taskIdx].Param}
-			updateForceAdjust(commd)
-			taskIdx++
-			continue
-		}
-
 		var task *Task
 
 		select {
@@ -463,15 +471,14 @@ func DispatchTasks(tasks []Task, partition bool, selectBy SelectFunc) {
 				timeOffset += task.Arrival
 				current := startTime.Add(time.Duration(timeOffset) * time.Millisecond)
 
+				sendingTasks := []*Task{}
+
 				for true {
 					// current := conStart.Add(time.Duration(timeOffset) * time.Millisecond)
 					task.ConStart = current.Format("2006-01-02 15:04:05.000")
 					fmt.Printf("将执行任务 %+v \n", task)
 
-					if len(doDispatch([]*Task{task}, partition, selectBy)) > 0 {
-						pendingTasks = append(pendingTasks, task)
-					}
-
+					sendingTasks = append(sendingTasks, task)
 					if taskIdx < len(tasks) {
 						if tasks[taskIdx].Arrival == 0 {
 							task = &tasks[taskIdx]
@@ -484,6 +491,10 @@ func DispatchTasks(tasks []Task, partition bool, selectBy SelectFunc) {
 					}
 
 					break
+				}
+
+				if len(doDispatch(sendingTasks, partition, selectBy)) > 0 {
+					pendingTasks = append(pendingTasks, task)
 				}
 			} else {
 				current := time.Now()
@@ -570,15 +581,12 @@ func CalculatePartitionLoad(statusMap map[string]NodeStatus) (float64, float64, 
 
 // 选择最低负载节点并等待任务完成后切换策略
 func SelectAndConvertNode(statusMap map[string]NodeStatus, fromPolicy, toPolicy string, force bool) {
-	minLoad := 100.0
+	minLoad := 50.0
 	var selectedNode *NodeStatus = nil
 	var selectedIp = ""
 
 	if force {
-		selectedIp = nodeIPs[0]
-		node := statusMap[selectedIp]
-		selectedNode = &node
-		minLoad = selectedNode.CPUUsage
+		minLoad = 101.
 	}
 
 	for ip, status := range statusMap {
@@ -667,7 +675,7 @@ func checkAndAdjustPartition() {
 	}
 
 	force := false
-	if fifoCount > 1 && fifoLoad < C.NOT_BUSY_THRESHOLD && cfsLoad > C.BUSY_THRESHOLD && longFlag {
+	if fifoCount > 1 && fifoLoad < 20 && cfsLoad > 80 && longFlag {
 		// if fifoLoad < 10 && cfsLoad > 60 && longFlag {
 		SelectAndConvertNode(statusMap, "f", "c", force)
 	} else if cfsCount > 1 && cfsLoad < C.NOT_BUSY_THRESHOLD && fifoLoad > C.BUSY_THRESHOLD && shortFlag {
@@ -748,17 +756,19 @@ func setup_agents(local bool, allowAdjust bool, partition bool, _select_by strin
 func main() {
 	fmt.Println("not_busy_threshold:", C.NOT_BUSY_THRESHOLD, "busy_threshold:", C.BUSY_THRESHOLD)
 
-	allowAdjust := false
-	local := false
 	trace_name := ""
 	select_by := ""
 	partition := false
+	allowAdjust := false
+	local := false
 
-	flag.BoolVar(&allowAdjust, "allowAdjust", false, "allow adjust agent policy")
 	flag.StringVar(&trace_name, "trace", "test_tiny", "trace file name")
 	flag.StringVar(&select_by, "selectBy", "leastLoad", "select node by leastLoad, hash or random")
 	flag.BoolVar(&local, "local", false, "use localhost as agent")
 	flag.BoolVar(&partition, "partition", false, "partition")
+	flag.BoolVar(&allowAdjust, "allowAdjust", false, "allow adjust agent policy")
+	flag.BoolVar(&allowForceAdjust, "forceAdjust", false, "allow force adjust agent policy")
+
 	flag.Parse()
 
 	setup_agents(local, allowAdjust, partition, select_by)
