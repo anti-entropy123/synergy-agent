@@ -1,0 +1,584 @@
+run_OpenFaaS_CDF_hw_100_slo 开始执行。
+1741792806.174884558
+not_busy_threshold: 30 busy_threshold: 50
+Monitor get statusLock
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 3.00%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 3.00%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 2.04%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 2.00%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 0.99%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 1.00%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 2.02%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 1.98%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 1.01%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 1.01%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 3.03%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+29 20 20 33 33 29 26 25 20 20 20 26 31 29 31 33 20 20 24 20 20 20 20 20 20 33 24 20 33 29 20 29 20 20 33 24 30 33 30 30 31 20 20 20 20 28 33 31 20 30 33 31 20 20 26 20 20 20 29 30 20 23 20 30 20 24 28 20 20 20 20 23 24 30 20 20 29 20 20 20 20 20 20 20 20 21 20 28 33 20 20 32 20 20 20 31 30 20 20 29 29 
+
+==== 任务统计 ====
+收到短任务: 90 个, 长任务: 11 个
+将执行任务 &{Name:fib1 Script:fib.py Param:29 Arrival:0 Seq:1 ConStart:2025-03-12 23:20:09.181} 
+将执行任务 &{Name:fib2 Script:fib.py Param:20 Arrival:0 Seq:2 ConStart:2025-03-12 23:20:09.181} 
+将执行任务 &{Name:fib3 Script:fib.py Param:20 Arrival:0 Seq:3 ConStart:2025-03-12 23:20:09.181} 
+将执行任务 &{Name:fib4 Script:fib.py Param:33 Arrival:0 Seq:4 ConStart:2025-03-12 23:20:09.181} 
+将执行任务 &{Name:fib5 Script:fib.py Param:33 Arrival:0 Seq:5 ConStart:2025-03-12 23:20:09.181} 
+将执行任务 &{Name:fib6 Script:fib.py Param:29 Arrival:0 Seq:6 ConStart:2025-03-12 23:20:09.181} 
+将执行任务 &{Name:fib7 Script:fib.py Param:26 Arrival:0 Seq:7 ConStart:2025-03-12 23:20:09.181} 
+将执行任务 &{Name:fib8 Script:fib.py Param:25 Arrival:0 Seq:8 ConStart:2025-03-12 23:20:09.181} 
+将执行任务 &{Name:fib9 Script:fib.py Param:20 Arrival:0 Seq:9 ConStart:2025-03-12 23:20:09.181} 
+将执行任务 &{Name:fib10 Script:fib.py Param:20 Arrival:0 Seq:10 ConStart:2025-03-12 23:20:09.181} 
+任务 fib1 (短任务 (FIFO)) 分配到节点 172.17.0.21 (CPU 负载: 0.99%)
+任务 fib2 (短任务 (FIFO)) 分配到节点 172.17.0.21 (CPU 负载: 0.99%)
+任务 fib3 (短任务 (FIFO)) 分配到节点 172.17.0.21 (CPU 负载: 0.99%)
+任务 fib4 (长任务 (CFS)) 分配到节点 172.17.0.24 (CPU 负载: 0.00%)
+任务 fib5 (长任务 (CFS)) 分配到节点 172.17.0.22 (CPU 负载: 1.00%)
+任务 fib6 (短任务 (FIFO)) 分配到节点 172.17.0.27 (CPU 负载: 1.01%)
+任务 fib7 (短任务 (FIFO)) 分配到节点 172.17.0.24 (CPU 负载: 0.00%)
+任务 fib8 (短任务 (FIFO)) 分配到节点 172.17.0.28 (CPU 负载: 3.03%)
+任务 fib9 (短任务 (FIFO)) 分配到节点 172.17.0.27 (CPU 负载: 1.01%)
+任务 fib10 (短任务 (FIFO)) 分配到节点 172.17.0.28 (CPU 负载: 3.03%)
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 0.99%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 1.02%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 1.01%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 0.99%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 3.92%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 4.00%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+pendingTask len: 0
+任务 fib8,fib10 已成功发送到节点 172.17.0.28, 排序耗时: 804ns
+任务 fib6,fib9 已成功发送到节点 172.17.0.27, 排序耗时: 946ns
+任务 fib1,fib2,fib3 已成功发送到节点 172.17.0.21, 排序耗时: 425ns
+任务 fib5 已成功发送到节点 172.17.0.22, 排序耗时: 1.388µs
+任务 fib4,fib7 已成功发送到节点 172.17.0.24, 排序耗时: 1.319µs
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 16.00%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 80.81%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 2.04%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 85.00%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 1.01%
+pendingTask len: 0
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 15.31%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 4.08%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+将执行任务 &{Name:fib11 Script:fib.py Param:20 Arrival:1500 Seq:11 ConStart:2025-03-12 23:20:10.681} 
+将执行任务 &{Name:fib12 Script:fib.py Param:26 Arrival:0 Seq:12 ConStart:2025-03-12 23:20:10.681} 
+将执行任务 &{Name:fib13 Script:fib.py Param:31 Arrival:0 Seq:13 ConStart:2025-03-12 23:20:10.681} 
+将执行任务 &{Name:fib14 Script:fib.py Param:29 Arrival:0 Seq:14 ConStart:2025-03-12 23:20:10.681} 
+将执行任务 &{Name:fib15 Script:fib.py Param:31 Arrival:0 Seq:15 ConStart:2025-03-12 23:20:10.681} 
+将执行任务 &{Name:fib16 Script:fib.py Param:33 Arrival:0 Seq:16 ConStart:2025-03-12 23:20:10.681} 
+将执行任务 &{Name:fib17 Script:fib.py Param:20 Arrival:0 Seq:17 ConStart:2025-03-12 23:20:10.681} 
+将执行任务 &{Name:fib18 Script:fib.py Param:20 Arrival:0 Seq:18 ConStart:2025-03-12 23:20:10.681} 
+将执行任务 &{Name:fib19 Script:fib.py Param:24 Arrival:0 Seq:19 ConStart:2025-03-12 23:20:10.681} 
+将执行任务 &{Name:fib20 Script:fib.py Param:20 Arrival:0 Seq:20 ConStart:2025-03-12 23:20:10.681} 
+任务 fib11 (短任务 (FIFO)) 分配到节点 172.17.0.25 (CPU 负载: 0.00%)
+任务 fib12 (短任务 (FIFO)) 分配到节点 172.17.0.27 (CPU 负载: 15.31%)
+任务 fib13 (短任务 (FIFO)) 分配到节点 172.17.0.26 (CPU 负载: 1.01%)
+任务 fib14 (短任务 (FIFO)) 分配到节点 172.17.0.26 (CPU 负载: 1.01%)
+任务 fib15 (短任务 (FIFO)) 分配到节点 172.17.0.25 (CPU 负载: 0.00%)
+任务 fib16 (长任务 (CFS)) 分配到节点 172.17.0.26 (CPU 负载: 1.01%)
+任务 fib17 (短任务 (FIFO)) 分配到节点 172.17.0.27 (CPU 负载: 15.31%)
+任务 fib18 (短任务 (FIFO)) 分配到节点 172.17.0.26 (CPU 负载: 1.01%)
+任务 fib19 (短任务 (FIFO)) 分配到节点 172.17.0.26 (CPU 负载: 1.01%)
+任务 fib20 (短任务 (FIFO)) 分配到节点 172.17.0.25 (CPU 负载: 0.00%)
+任务 fib12,fib17 已成功发送到节点 172.17.0.27, 排序耗时: 1.243µs
+任务 fib11,fib15,fib20 已成功发送到节点 172.17.0.25, 排序耗时: 1.368µs
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 1.01%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 36.00%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 52.00%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 7.00%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 2.02%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+pendingTask len: 0
+任务 fib13,fib14,fib16,fib18,fib19 已成功发送到节点 172.17.0.26, 排序耗时: 2.014µs
+将执行任务 &{Name:fib21 Script:fib.py Param:20 Arrival:1500 Seq:21 ConStart:2025-03-12 23:20:12.181} 
+将执行任务 &{Name:fib22 Script:fib.py Param:20 Arrival:0 Seq:22 ConStart:2025-03-12 23:20:12.181} 
+将执行任务 &{Name:fib23 Script:fib.py Param:20 Arrival:0 Seq:23 ConStart:2025-03-12 23:20:12.181} 
+将执行任务 &{Name:fib24 Script:fib.py Param:20 Arrival:0 Seq:24 ConStart:2025-03-12 23:20:12.181} 
+将执行任务 &{Name:fib25 Script:fib.py Param:20 Arrival:0 Seq:25 ConStart:2025-03-12 23:20:12.181} 
+将执行任务 &{Name:fib26 Script:fib.py Param:33 Arrival:0 Seq:26 ConStart:2025-03-12 23:20:12.181} 
+将执行任务 &{Name:fib27 Script:fib.py Param:24 Arrival:0 Seq:27 ConStart:2025-03-12 23:20:12.181} 
+将执行任务 &{Name:fib28 Script:fib.py Param:20 Arrival:0 Seq:28 ConStart:2025-03-12 23:20:12.181} 
+将执行任务 &{Name:fib29 Script:fib.py Param:33 Arrival:0 Seq:29 ConStart:2025-03-12 23:20:12.181} 
+将执行任务 &{Name:fib30 Script:fib.py Param:29 Arrival:0 Seq:30 ConStart:2025-03-12 23:20:12.181} 
+任务 fib21 (短任务 (FIFO)) 分配到节点 172.17.0.26 (CPU 负载: 52.00%)
+任务 fib22 (短任务 (FIFO)) 分配到节点 172.17.0.23 (CPU 负载: 1.01%)
+任务 fib23 (短任务 (FIFO)) 分配到节点 172.17.0.26 (CPU 负载: 52.00%)
+任务 fib24 (短任务 (FIFO)) 分配到节点 172.17.0.23 (CPU 负载: 1.01%)
+任务 fib25 (短任务 (FIFO)) 分配到节点 172.17.0.27 (CPU 负载: 7.00%)
+任务 fib26 (长任务 (CFS)) 分配到节点 172.17.0.25 (CPU 负载: 36.00%)
+任务 fib27 (短任务 (FIFO)) 分配到节点 172.17.0.26 (CPU 负载: 52.00%)
+任务 fib28 (短任务 (FIFO)) 分配到节点 172.17.0.28 (CPU 负载: 2.02%)
+任务 fib29 (长任务 (CFS)) 分配到节点 172.17.0.27 (CPU 负载: 7.00%)
+任务 fib30 (短任务 (FIFO)) 分配到节点 172.17.0.21 (CPU 负载: 0.00%)
+任务 fib28 已成功发送到节点 172.17.0.28, 排序耗时: 1.133µs
+
+==== 当前系统节点状态 ====
+pendingTask len: 0
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 1.01%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 1.00%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 4.04%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 2.06%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 81.19%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 3.06%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 8.00%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+任务 fib22,fib24 已成功发送到节点 172.17.0.23, 排序耗时: 1.584µs
+任务 fib21,fib23,fib27 已成功发送到节点 172.17.0.26, 排序耗时: 1.158µs
+任务 fib30 已成功发送到节点 172.17.0.21, 排序耗时: 2.49µs
+任务 fib26 已成功发送到节点 172.17.0.25, 排序耗时: 1.73µs
+任务 fib25,fib29 已成功发送到节点 172.17.0.27, 排序耗时: 1.874µs
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 11.00%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 3.03%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 1.01%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 80.00%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 3.06%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 80.00%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 1.02%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+pendingTask len: 0
+将执行任务 &{Name:fib31 Script:fib.py Param:20 Arrival:1500 Seq:31 ConStart:2025-03-12 23:20:13.681} 
+将执行任务 &{Name:fib32 Script:fib.py Param:29 Arrival:0 Seq:32 ConStart:2025-03-12 23:20:13.681} 
+将执行任务 &{Name:fib33 Script:fib.py Param:20 Arrival:0 Seq:33 ConStart:2025-03-12 23:20:13.681} 
+将执行任务 &{Name:fib34 Script:fib.py Param:20 Arrival:0 Seq:34 ConStart:2025-03-12 23:20:13.681} 
+将执行任务 &{Name:fib35 Script:fib.py Param:33 Arrival:0 Seq:35 ConStart:2025-03-12 23:20:13.681} 
+将执行任务 &{Name:fib36 Script:fib.py Param:24 Arrival:0 Seq:36 ConStart:2025-03-12 23:20:13.681} 
+将执行任务 &{Name:fib37 Script:fib.py Param:30 Arrival:0 Seq:37 ConStart:2025-03-12 23:20:13.681} 
+将执行任务 &{Name:fib38 Script:fib.py Param:33 Arrival:0 Seq:38 ConStart:2025-03-12 23:20:13.681} 
+将执行任务 &{Name:fib39 Script:fib.py Param:30 Arrival:0 Seq:39 ConStart:2025-03-12 23:20:13.681} 
+将执行任务 &{Name:fib40 Script:fib.py Param:30 Arrival:0 Seq:40 ConStart:2025-03-12 23:20:13.681} 
+任务 fib31 (短任务 (FIFO)) 分配到节点 172.17.0.21 (CPU 负载: 11.00%)
+任务 fib32 (短任务 (FIFO)) 分配到节点 172.17.0.22 (CPU 负载: 0.00%)
+任务 fib33 (短任务 (FIFO)) 分配到节点 172.17.0.22 (CPU 负载: 0.00%)
+任务 fib34 (短任务 (FIFO)) 分配到节点 172.17.0.21 (CPU 负载: 11.00%)
+任务 fib35 (长任务 (CFS)) 分配到节点 172.17.0.25 (CPU 负载: 80.00%)
+任务 fib36 (短任务 (FIFO)) 分配到节点 172.17.0.23 (CPU 负载: 3.03%)
+任务 fib37 (短任务 (FIFO)) 分配到节点 172.17.0.23 (CPU 负载: 3.03%)
+任务 fib38 (长任务 (CFS)) 分配到节点 172.17.0.21 (CPU 负载: 11.00%)
+任务 fib39 (短任务 (FIFO)) 分配到节点 172.17.0.27 (CPU 负载: 80.00%)
+任务 fib40 (短任务 (FIFO)) 分配到节点 172.17.0.21 (CPU 负载: 11.00%)
+任务 fib32,fib33 已成功发送到节点 172.17.0.22, 排序耗时: 1.549µs
+任务 fib39 已成功发送到节点 172.17.0.27, 排序耗时: 802ns
+任务 fib36,fib37 已成功发送到节点 172.17.0.23, 排序耗时: 2.362µs
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 53.00%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 15.00%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 28.71%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 2.00%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 53.54%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 1.03%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 20.79%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 1.04%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+任务 fib35 已成功发送到节点 172.17.0.25, 排序耗时: 683ns
+任务 fib31,fib34,fib38,fib40 已成功发送到节点 172.17.0.21, 排序耗时: 1.754µs
+将执行任务 &{Name:fib41 Script:fib.py Param:31 Arrival:1500 Seq:41 ConStart:2025-03-12 23:20:15.181} 
+将执行任务 &{Name:fib42 Script:fib.py Param:20 Arrival:0 Seq:42 ConStart:2025-03-12 23:20:15.181} 
+将执行任务 &{Name:fib43 Script:fib.py Param:20 Arrival:0 Seq:43 ConStart:2025-03-12 23:20:15.181} 
+将执行任务 &{Name:fib44 Script:fib.py Param:20 Arrival:0 Seq:44 ConStart:2025-03-12 23:20:15.181} 
+将执行任务 &{Name:fib45 Script:fib.py Param:20 Arrival:0 Seq:45 ConStart:2025-03-12 23:20:15.181} 
+将执行任务 &{Name:fib46 Script:fib.py Param:28 Arrival:0 Seq:46 ConStart:2025-03-12 23:20:15.181} 
+将执行任务 &{Name:fib47 Script:fib.py Param:33 Arrival:0 Seq:47 ConStart:2025-03-12 23:20:15.181} 
+将执行任务 &{Name:fib48 Script:fib.py Param:31 Arrival:0 Seq:48 ConStart:2025-03-12 23:20:15.181} 
+将执行任务 &{Name:fib49 Script:fib.py Param:20 Arrival:0 Seq:49 ConStart:2025-03-12 23:20:15.181} 
+将执行任务 &{Name:fib50 Script:fib.py Param:30 Arrival:0 Seq:50 ConStart:2025-03-12 23:20:15.181} 
+任务 fib41 (短任务 (FIFO)) 分配到节点 172.17.0.28 (CPU 负载: 1.04%)
+任务 fib42 (短任务 (FIFO)) 分配到节点 172.17.0.22 (CPU 负载: 15.00%)
+任务 fib43 (短任务 (FIFO)) 分配到节点 172.17.0.23 (CPU 负载: 28.71%)
+任务 fib44 (短任务 (FIFO)) 分配到节点 172.17.0.22 (CPU 负载: 15.00%)
+任务 fib45 (短任务 (FIFO)) 分配到节点 172.17.0.23 (CPU 负载: 28.71%)
+任务 fib46 (短任务 (FIFO)) 分配到节点 172.17.0.22 (CPU 负载: 15.00%)
+任务 fib47 (长任务 (CFS)) 分配到节点 172.17.0.23 (CPU 负载: 28.71%)
+任务 fib48 (短任务 (FIFO)) 分配到节点 172.17.0.23 (CPU 负载: 28.71%)
+任务 fib49 (短任务 (FIFO)) 分配到节点 172.17.0.26 (CPU 负载: 1.03%)
+任务 fib50 (短任务 (FIFO)) 分配到节点 172.17.0.22 (CPU 负载: 15.00%)
+任务 fib49 已成功发送到节点 172.17.0.26, 排序耗时: 2.106µs
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 52.00%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 3.96%
+pendingTask len: 0
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 3.03%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 28.71%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 3.03%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 4.17%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+任务 fib41 已成功发送到节点 172.17.0.28, 排序耗时: 1.238µs
+任务 fib42,fib44,fib46,fib50 已成功发送到节点 172.17.0.22, 排序耗时: 1.227µs
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 28.28%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 100.00%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 0.99%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 29.00%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+pendingTask len: 0
+任务 fib43,fib45,fib47,fib48 已成功发送到节点 172.17.0.23, 排序耗时: 2.229µs
+将执行任务 &{Name:fib51 Script:fib.py Param:33 Arrival:1500 Seq:51 ConStart:2025-03-12 23:20:16.681} 
+将执行任务 &{Name:fib52 Script:fib.py Param:31 Arrival:0 Seq:52 ConStart:2025-03-12 23:20:16.681} 
+将执行任务 &{Name:fib53 Script:fib.py Param:20 Arrival:0 Seq:53 ConStart:2025-03-12 23:20:16.681} 
+将执行任务 &{Name:fib54 Script:fib.py Param:20 Arrival:0 Seq:54 ConStart:2025-03-12 23:20:16.681} 
+将执行任务 &{Name:fib55 Script:fib.py Param:26 Arrival:0 Seq:55 ConStart:2025-03-12 23:20:16.681} 
+将执行任务 &{Name:fib56 Script:fib.py Param:20 Arrival:0 Seq:56 ConStart:2025-03-12 23:20:16.681} 
+将执行任务 &{Name:fib57 Script:fib.py Param:20 Arrival:0 Seq:57 ConStart:2025-03-12 23:20:16.681} 
+将执行任务 &{Name:fib58 Script:fib.py Param:20 Arrival:0 Seq:58 ConStart:2025-03-12 23:20:16.681} 
+将执行任务 &{Name:fib59 Script:fib.py Param:29 Arrival:0 Seq:59 ConStart:2025-03-12 23:20:16.681} 
+将执行任务 &{Name:fib60 Script:fib.py Param:30 Arrival:0 Seq:60 ConStart:2025-03-12 23:20:16.681} 
+任务 fib51 (长任务 (CFS)) 分配到节点 172.17.0.24 (CPU 负载: 0.99%)
+任务 fib52 (短任务 (FIFO)) 分配到节点 172.17.0.27 (CPU 负载: 0.00%)
+任务 fib53 (短任务 (FIFO)) 分配到节点 172.17.0.22 (CPU 负载: 28.28%)
+任务 fib54 (短任务 (FIFO)) 分配到节点 172.17.0.26 (CPU 负载: 0.00%)
+任务 fib55 (短任务 (FIFO)) 分配到节点 172.17.0.25 (CPU 负载: 0.00%)
+任务 fib56 (短任务 (FIFO)) 分配到节点 172.17.0.27 (CPU 负载: 0.00%)
+任务 fib57 (短任务 (FIFO)) 分配到节点 172.17.0.25 (CPU 负载: 0.00%)
+任务 fib58 (短任务 (FIFO)) 分配到节点 172.17.0.21 (CPU 负载: 0.00%)
+任务 fib59 (短任务 (FIFO)) 分配到节点 172.17.0.21 (CPU 负载: 0.00%)
+任务 fib60 (短任务 (FIFO)) 分配到节点 172.17.0.26 (CPU 负载: 0.00%)
+任务 fib53 已成功发送到节点 172.17.0.22, 排序耗时: 2.33µs
+任务 fib55,fib57 已成功发送到节点 172.17.0.25, 排序耗时: 666ns
+任务 fib58,fib59 已成功发送到节点 172.17.0.21, 排序耗时: 1.51µs
+任务 fib54,fib60 已成功发送到节点 172.17.0.26, 排序耗时: 1.553µs
+任务 fib52,fib56 已成功发送到节点 172.17.0.27, 排序耗时: 871ns
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 15.00%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 2.00%
+pendingTask len: 0
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 12.00%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 54.46%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 6.00%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 23.23%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 33.66%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 0.00%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+任务 fib51 已成功发送到节点 172.17.0.24, 排序耗时: 2.575µs
+将执行任务 &{Name:fib61 Script:fib.py Param:20 Arrival:1500 Seq:61 ConStart:2025-03-12 23:20:18.181} 
+将执行任务 &{Name:fib62 Script:fib.py Param:23 Arrival:0 Seq:62 ConStart:2025-03-12 23:20:18.181} 
+将执行任务 &{Name:fib63 Script:fib.py Param:20 Arrival:0 Seq:63 ConStart:2025-03-12 23:20:18.181} 
+将执行任务 &{Name:fib64 Script:fib.py Param:30 Arrival:0 Seq:64 ConStart:2025-03-12 23:20:18.181} 
+将执行任务 &{Name:fib65 Script:fib.py Param:20 Arrival:0 Seq:65 ConStart:2025-03-12 23:20:18.181} 
+将执行任务 &{Name:fib66 Script:fib.py Param:24 Arrival:0 Seq:66 ConStart:2025-03-12 23:20:18.181} 
+将执行任务 &{Name:fib67 Script:fib.py Param:28 Arrival:0 Seq:67 ConStart:2025-03-12 23:20:18.181} 
+将执行任务 &{Name:fib68 Script:fib.py Param:20 Arrival:0 Seq:68 ConStart:2025-03-12 23:20:18.181} 
+将执行任务 &{Name:fib69 Script:fib.py Param:20 Arrival:0 Seq:69 ConStart:2025-03-12 23:20:18.181} 
+将执行任务 &{Name:fib70 Script:fib.py Param:20 Arrival:0 Seq:70 ConStart:2025-03-12 23:20:18.181} 
+任务 fib61 (短任务 (FIFO)) 分配到节点 172.17.0.22 (CPU 负载: 2.00%)
+任务 fib62 (短任务 (FIFO)) 分配到节点 172.17.0.26 (CPU 负载: 23.23%)
+任务 fib63 (短任务 (FIFO)) 分配到节点 172.17.0.27 (CPU 负载: 33.66%)
+任务 fib64 (短任务 (FIFO)) 分配到节点 172.17.0.27 (CPU 负载: 33.66%)
+任务 fib65 (短任务 (FIFO)) 分配到节点 172.17.0.24 (CPU 负载: 54.46%)
+任务 fib66 (短任务 (FIFO)) 分配到节点 172.17.0.26 (CPU 负载: 23.23%)
+任务 fib67 (短任务 (FIFO)) 分配到节点 172.17.0.23 (CPU 负载: 12.00%)
+任务 fib68 (短任务 (FIFO)) 分配到节点 172.17.0.22 (CPU 负载: 2.00%)
+任务 fib69 (短任务 (FIFO)) 分配到节点 172.17.0.28 (CPU 负载: 0.00%)
+任务 fib70 (短任务 (FIFO)) 分配到节点 172.17.0.22 (CPU 负载: 2.00%)
+任务 fib65 已成功发送到节点 172.17.0.24, 排序耗时: 1.087µs
+任务 fib69 已成功发送到节点 172.17.0.28, 排序耗时: 1.739µs
+任务 fib62,fib66 已成功发送到节点 172.17.0.26, 排序耗时: 1.026µs
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 5.00%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 4.04%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 30.00%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 4.04%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 5.00%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 2.00%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+pendingTask len: 0
+任务 fib61,fib68,fib70 已成功发送到节点 172.17.0.22, 排序耗时: 2.349µs
+任务 fib67 已成功发送到节点 172.17.0.23, 排序耗时: 1.835µs
+任务 fib63,fib64 已成功发送到节点 172.17.0.27, 排序耗时: 1.272µs
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 4.00%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 17.00%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 1.98%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+pendingTask len: 0
+将执行任务 &{Name:fib71 Script:fib.py Param:20 Arrival:1500 Seq:71 ConStart:2025-03-12 23:20:19.681} 
+将执行任务 &{Name:fib72 Script:fib.py Param:23 Arrival:0 Seq:72 ConStart:2025-03-12 23:20:19.681} 
+将执行任务 &{Name:fib73 Script:fib.py Param:24 Arrival:0 Seq:73 ConStart:2025-03-12 23:20:19.681} 
+将执行任务 &{Name:fib74 Script:fib.py Param:30 Arrival:0 Seq:74 ConStart:2025-03-12 23:20:19.681} 
+将执行任务 &{Name:fib75 Script:fib.py Param:20 Arrival:0 Seq:75 ConStart:2025-03-12 23:20:19.681} 
+将执行任务 &{Name:fib76 Script:fib.py Param:20 Arrival:0 Seq:76 ConStart:2025-03-12 23:20:19.681} 
+将执行任务 &{Name:fib77 Script:fib.py Param:29 Arrival:0 Seq:77 ConStart:2025-03-12 23:20:19.681} 
+将执行任务 &{Name:fib78 Script:fib.py Param:20 Arrival:0 Seq:78 ConStart:2025-03-12 23:20:19.681} 
+将执行任务 &{Name:fib79 Script:fib.py Param:20 Arrival:0 Seq:79 ConStart:2025-03-12 23:20:19.681} 
+将执行任务 &{Name:fib80 Script:fib.py Param:20 Arrival:0 Seq:80 ConStart:2025-03-12 23:20:19.681} 
+任务 fib71 (短任务 (FIFO)) 分配到节点 172.17.0.21 (CPU 负载: 0.00%)
+任务 fib72 (短任务 (FIFO)) 分配到节点 172.17.0.23 (CPU 负载: 4.00%)
+任务 fib73 (短任务 (FIFO)) 分配到节点 172.17.0.22 (CPU 负载: 0.00%)
+任务 fib74 (短任务 (FIFO)) 分配到节点 172.17.0.22 (CPU 负载: 0.00%)
+任务 fib75 (短任务 (FIFO)) 分配到节点 172.17.0.21 (CPU 负载: 0.00%)
+任务 fib76 (短任务 (FIFO)) 分配到节点 172.17.0.24 (CPU 负载: 0.00%)
+任务 fib77 (短任务 (FIFO)) 分配到节点 172.17.0.21 (CPU 负载: 0.00%)
+任务 fib78 (短任务 (FIFO)) 分配到节点 172.17.0.23 (CPU 负载: 4.00%)
+任务 fib79 (短任务 (FIFO)) 分配到节点 172.17.0.23 (CPU 负载: 4.00%)
+任务 fib80 (短任务 (FIFO)) 分配到节点 172.17.0.28 (CPU 负载: 1.98%)
+任务 fib76 已成功发送到节点 172.17.0.24, 排序耗时: 3.462µs
+任务 fib80 已成功发送到节点 172.17.0.28, 排序耗时: 1.112µs
+任务 fib72,fib78,fib79 已成功发送到节点 172.17.0.23, 排序耗时: 3.333µs
+任务 fib71,fib75,fib77 已成功发送到节点 172.17.0.21, 排序耗时: 1.284µs
+任务 fib73,fib74 已成功发送到节点 172.17.0.22, 排序耗时: 760ns
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 16.83%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 23.76%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 5.94%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 1.02%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 1.01%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+pendingTask len: 0
+将执行任务 &{Name:fib81 Script:fib.py Param:20 Arrival:1500 Seq:81 ConStart:2025-03-12 23:20:21.181} 
+将执行任务 &{Name:fib82 Script:fib.py Param:20 Arrival:0 Seq:82 ConStart:2025-03-12 23:20:21.181} 
+将执行任务 &{Name:fib83 Script:fib.py Param:20 Arrival:0 Seq:83 ConStart:2025-03-12 23:20:21.181} 
+将执行任务 &{Name:fib84 Script:fib.py Param:20 Arrival:0 Seq:84 ConStart:2025-03-12 23:20:21.181} 
+将执行任务 &{Name:fib85 Script:fib.py Param:20 Arrival:0 Seq:85 ConStart:2025-03-12 23:20:21.181} 
+将执行任务 &{Name:fib86 Script:fib.py Param:21 Arrival:0 Seq:86 ConStart:2025-03-12 23:20:21.181} 
+将执行任务 &{Name:fib87 Script:fib.py Param:20 Arrival:0 Seq:87 ConStart:2025-03-12 23:20:21.181} 
+将执行任务 &{Name:fib88 Script:fib.py Param:28 Arrival:0 Seq:88 ConStart:2025-03-12 23:20:21.181} 
+将执行任务 &{Name:fib89 Script:fib.py Param:33 Arrival:0 Seq:89 ConStart:2025-03-12 23:20:21.181} 
+将执行任务 &{Name:fib90 Script:fib.py Param:20 Arrival:0 Seq:90 ConStart:2025-03-12 23:20:21.181} 
+任务 fib81 (短任务 (FIFO)) 分配到节点 172.17.0.27 (CPU 负载: 0.00%)
+任务 fib82 (短任务 (FIFO)) 分配到节点 172.17.0.21 (CPU 负载: 16.83%)
+任务 fib83 (短任务 (FIFO)) 分配到节点 172.17.0.21 (CPU 负载: 16.83%)
+任务 fib84 (短任务 (FIFO)) 分配到节点 172.17.0.26 (CPU 负载: 0.00%)
+任务 fib85 (短任务 (FIFO)) 分配到节点 172.17.0.28 (CPU 负载: 1.01%)
+任务 fib86 (短任务 (FIFO)) 分配到节点 172.17.0.26 (CPU 负载: 0.00%)
+任务 fib87 (短任务 (FIFO)) 分配到节点 172.17.0.28 (CPU 负载: 1.01%)
+任务 fib88 (短任务 (FIFO)) 分配到节点 172.17.0.26 (CPU 负载: 0.00%)
+任务 fib89 (长任务 (CFS)) 分配到节点 172.17.0.24 (CPU 负载: 1.02%)
+任务 fib90 (短任务 (FIFO)) 分配到节点 172.17.0.26 (CPU 负载: 0.00%)
+任务 fib81 已成功发送到节点 172.17.0.27, 排序耗时: 2.014µs
+任务 fib82,fib83 已成功发送到节点 172.17.0.21, 排序耗时: 1.814µs
+任务 fib85,fib87 已成功发送到节点 172.17.0.28, 排序耗时: 2.07µs
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 3.96%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 1.00%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 9.00%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 6.00%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 1.01%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 4.95%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+pendingTask len: 0
+任务 fib84,fib86,fib88,fib90 已成功发送到节点 172.17.0.26, 排序耗时: 1.733µs
+任务 fib89 已成功发送到节点 172.17.0.24, 排序耗时: 652ns
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 75.00%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 3.00%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 8.08%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 0.00%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+pendingTask len: 0
+将执行任务 &{Name:fib91 Script:fib.py Param:20 Arrival:1500 Seq:91 ConStart:2025-03-12 23:20:22.681} 
+将执行任务 &{Name:fib92 Script:fib.py Param:32 Arrival:0 Seq:92 ConStart:2025-03-12 23:20:22.681} 
+将执行任务 &{Name:fib93 Script:fib.py Param:20 Arrival:0 Seq:93 ConStart:2025-03-12 23:20:22.681} 
+将执行任务 &{Name:fib94 Script:fib.py Param:20 Arrival:0 Seq:94 ConStart:2025-03-12 23:20:22.681} 
+将执行任务 &{Name:fib95 Script:fib.py Param:20 Arrival:0 Seq:95 ConStart:2025-03-12 23:20:22.681} 
+将执行任务 &{Name:fib96 Script:fib.py Param:31 Arrival:0 Seq:96 ConStart:2025-03-12 23:20:22.681} 
+将执行任务 &{Name:fib97 Script:fib.py Param:30 Arrival:0 Seq:97 ConStart:2025-03-12 23:20:22.681} 
+将执行任务 &{Name:fib98 Script:fib.py Param:20 Arrival:0 Seq:98 ConStart:2025-03-12 23:20:22.681} 
+将执行任务 &{Name:fib99 Script:fib.py Param:20 Arrival:0 Seq:99 ConStart:2025-03-12 23:20:22.681} 
+将执行任务 &{Name:fib100 Script:fib.py Param:29 Arrival:0 Seq:100 ConStart:2025-03-12 23:20:22.681} 
+将执行任务 &{Name:fib101 Script:fib.py Param:29 Arrival:0 Seq:101 ConStart:2025-03-12 23:20:22.681} 
+任务 fib91 (短任务 (FIFO)) 分配到节点 172.17.0.24 (CPU 负载: 75.00%)
+任务 fib92 (长任务 (CFS)) 分配到节点 172.17.0.28 (CPU 负载: 0.00%)
+任务 fib93 (短任务 (FIFO)) 分配到节点 172.17.0.22 (CPU 负载: 0.00%)
+任务 fib94 (短任务 (FIFO)) 分配到节点 172.17.0.23 (CPU 负载: 0.00%)
+任务 fib95 (短任务 (FIFO)) 分配到节点 172.17.0.22 (CPU 负载: 0.00%)
+任务 fib96 (短任务 (FIFO)) 分配到节点 172.17.0.25 (CPU 负载: 3.00%)
+任务 fib97 (短任务 (FIFO)) 分配到节点 172.17.0.28 (CPU 负载: 0.00%)
+任务 fib98 (短任务 (FIFO)) 分配到节点 172.17.0.27 (CPU 负载: 0.00%)
+任务 fib99 (短任务 (FIFO)) 分配到节点 172.17.0.28 (CPU 负载: 0.00%)
+任务 fib100 (短任务 (FIFO)) 分配到节点 172.17.0.23 (CPU 负载: 0.00%)
+任务 fib101 (短任务 (FIFO)) 分配到节点 172.17.0.23 (CPU 负载: 0.00%)
+任务 fib91 已成功发送到节点 172.17.0.24, 排序耗时: 1.913µs
+任务 fib98 已成功发送到节点 172.17.0.27, 排序耗时: 1.413µs
+任务 fib93,fib95 已成功发送到节点 172.17.0.22, 排序耗时: 1.905µs
+任务 fib94,fib100,fib101 已成功发送到节点 172.17.0.23, 排序耗时: 977ns
+任务 fib96 已成功发送到节点 172.17.0.25, 排序耗时: 927ns
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 3.03%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 29.29%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 1.98%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 33.33%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 2.04%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 5.00%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 57.00%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+排序窗口总等待平均时间为0
+Dispatch finished.
+任务 fib92,fib97,fib99 已成功发送到节点 172.17.0.28, 排序耗时: 881ns
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 1.01%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 16.83%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 0.00%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 1.00%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 2.00%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 1.00%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 1.01%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 5.00%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 8.74%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 4.04%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+
+==== 当前系统节点状态 ====
+节点 172.17.0.21 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.22 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.23 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.24 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.25 | 调度策略: c | CPU 利用率: 0.00%
+节点 172.17.0.26 | 调度策略: c | CPU 利用率: 3.09%
+节点 172.17.0.27 | 调度策略: c | CPU 利用率: 2.04%
+节点 172.17.0.28 | 调度策略: c | CPU 利用率: 0.00%
+FIFO 分区节点数: 0, CFS 分区节点数: 8
+Monitor release statusLock
+Monitor get statusLock
+1741792828.259906017
+Log data processed successfully. Output saved to agent-1.csv
+Log data processed successfully. Output saved to agent-2.csv
+Log data processed successfully. Output saved to agent-3.csv
+Log data processed successfully. Output saved to agent-4.csv
+Log data processed successfully. Output saved to agent-5.csv
+Log data processed successfully. Output saved to agent-6.csv
+Log data processed successfully. Output saved to agent-7.csv
+Log data processed successfully. Output saved to agent-8.csv
+Log data processed successfully. Output saved to agent-11.csv
+Log data processed successfully. Output saved to agent-12.csv
+Log data processed successfully. Output saved to agent-13.csv
+Log data processed successfully. Output saved to agent-14.csv
+Log data processed successfully. Output saved to agent-15.csv
+Log data processed successfully. Output saved to agent-16.csv
+Log data processed successfully. Output saved to agent-17.csv
+Log data processed successfully. Output saved to agent-18.csv
+Log data processed successfully. Output saved to agent-21.csv
+Log data processed successfully. Output saved to agent-22.csv
+Log data processed successfully. Output saved to agent-23.csv
+Log data processed successfully. Output saved to agent-24.csv
+Log data processed successfully. Output saved to agent-25.csv
+Log data processed successfully. Output saved to agent-26.csv
+Log data processed successfully. Output saved to agent-27.csv
+Log data processed successfully. Output saved to agent-28.csv
+Merged CSV saved to: agent1_8.csv
+Average Turn-around Time: nan
+Merged CSV saved to: agent11_18.csv
+Average Turn-around Time: nan
+Merged CSV saved to: agent21_28.csv
+Average Turn-around Time: 205.40
+1 agent1_8.csv
+1 agent11_18.csv
+102 agent21_28.csv
+run_OpenFaaS_CDF_hw_100_slo 执行完成。
