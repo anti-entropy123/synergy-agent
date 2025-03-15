@@ -23,6 +23,15 @@ wr_of_trace = np.sort(pd.read_csv(f'./synergy-controller/export/result_OpenFaaS_
 wr_ow_trace = np.sort(pd.read_csv(f'./synergy-controller/export/result_OpenWhisk_CDF_{trace}_500_luan_poisson/result/agent21_28.csv').iloc[:, -1].values)
 wr_sfs_trace = np.sort(pd.read_csv(f'./synergy-controller/export/result_SFS_CDF_{trace}_500_luan_poisson/result/agent21_28.csv').iloc[:, -1].values)
 
+print(len(hw_sg_trace), len(hw_of_trace), len(hw_ow_trace), len(hw_sfs_trace), len(wr_sg_trace), len(wr_of_trace), len(wr_ow_trace), len(wr_sfs_trace))
+
+with open('./synergy-controller/export-500/sec3_poisson_archive.csv', 'w') as f:
+    f.write('hw_sg, hw_of, hw_ow, hw_sfs, wr_sg, wr_of, wr_ow, wr_sfs\n')
+
+    for i in range(len(hw_sg_trace)):
+        f.write(f'{hw_sg_trace[i]},{hw_of_trace[i]},{hw_ow_trace[i]},{hw_sfs_trace[i]},{wr_sg_trace[i]},{wr_of_trace[i]},{wr_ow_trace[i]},{wr_sfs_trace[i]}\n')
+        
+
 # 创建图形和子图
 fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
 

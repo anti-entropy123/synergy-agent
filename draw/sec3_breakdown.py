@@ -43,7 +43,6 @@ hw_sfs_stage2 = 0
 hw_sfs_stage3 = hw_sfs_trace['t2-t1'].mean()
 hw_sfs_stage4 = hw_sfs_trace['cpu time'].mean()
 
-
 trace = "wr"
 wr_sg_trace = pd.read_csv(f'./synergy-controller/export/result_Synergy_CDF_{trace}_500_luan_poisson/result/agent1_8.csv')
 wr_sg_stage1 = wr_sg_trace['t1-t0'].mean()
@@ -69,11 +68,15 @@ wr_sfs_stage2 = 0
 wr_sfs_stage3 = wr_sfs_trace['t2-t1'].mean()
 wr_sfs_stage4 = wr_sfs_trace['cpu time'].mean()
 
-# trace = "wr"
-# wr_sg_trace = np.sort(pd.read_csv(f'./synergy-controller/export/result_Synergy_CDF_{trace}_500_luan_poisson/result/agent1_8.csv').iloc[:, -1].values)
-# wr_of_trace = np.sort(pd.read_csv(f'./synergy-controller/export/result_OpenFaaS_CDF_{trace}_500_luan_poisson/result/agent21_28.csv').iloc[:, -1].values) 
-# wr_ow_trace = np.sort(pd.read_csv(f'./synergy-controller/export/result_OpenWhisk_CDF_{trace}_500_luan_poisson/result/agent21_28.csv').iloc[:, -1].values)
-# wr_sfs_trace = np.sort(pd.read_csv(f'./synergy-controller/export/result_SFS_CDF_{trace}_500_luan_poisson/result/agent21_28.csv').iloc[:, -1].values)
+
+print('hw_sg', hw_sg_stage1, hw_sg_stage2, hw_sg_stage3, hw_sg_stage4)
+print('hw_of', hw_of_stage1, hw_of_stage2, hw_of_stage3, hw_of_stage4)
+print('hw_ow', hw_ow_stage1, hw_ow_stage2, hw_ow_stage3, hw_ow_stage4)
+print('hw_sfs', hw_sfs_stage1, hw_sfs_stage2, hw_sfs_stage3, hw_sfs_stage4)
+print('wr_sg', wr_sg_stage1, wr_sg_stage2, wr_sg_stage3, wr_sg_stage4)
+print('wr_of', wr_of_stage1, wr_of_stage2, wr_of_stage3, wr_of_stage4)
+print('wr_ow', wr_ow_stage1, wr_ow_stage2, wr_ow_stage3, wr_ow_stage4)
+print('wr_sfs', wr_sfs_stage1, wr_sfs_stage2, wr_sfs_stage3, wr_sfs_stage4)
 
 # 创建图形和子图
 fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))

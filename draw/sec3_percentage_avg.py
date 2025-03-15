@@ -37,8 +37,6 @@ length = len(hw_sg_trace)
 
 for ratio in range(50, 101, 10):
     ratio /= 100
-    # print("\nratio: ", ratio)
-    # print("synergy:", df1["turn-round time"][:int(ratio*len(df1))].mean())
     hw_sg_avg.append(hw_sg_trace[:int(ratio*length)].mean())
     hw_of_avg.append(hw_of_trace[:int(ratio*length)].mean())
     hw_ow_avg.append(hw_ow_trace[:int(ratio*length)].mean())
@@ -48,6 +46,10 @@ for ratio in range(50, 101, 10):
     wr_of_avg.append(wr_of_trace[:int(ratio*length)].mean())
     wr_ow_avg.append(wr_ow_trace[:int(ratio*length)].mean())
     wr_sfs_avg.append(wr_sfs_trace[:int(ratio*length)].mean())
+
+    print("百分位:", ratio)
+    print("hw:", hw_sg_avg[-1], hw_of_avg[-1], hw_ow_avg[-1], hw_sfs_avg[-1])
+    print("wr:", wr_sg_avg[-1], wr_of_avg[-1], wr_ow_avg[-1], wr_sfs_avg[-1])
 
 # 画若干组柱状图, 每组的x轴刻度分别为 P50, P60 ... P90. 
 # 每组内的若干柱子, 需要彼此不重叠, 且柱子宽度相同
