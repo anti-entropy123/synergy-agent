@@ -212,8 +212,8 @@ run_predictor:
 wait_ack_htop:
     #!/usr/bin/bash
 
-    # read -p "检查 htop 后继续: "
-    sleep 10
+    read -p "检查 htop 后继续: "
+    # sleep 20
 
 export_results label:
     -rm -r synergy-controller/export/result_{{label}}

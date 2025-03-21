@@ -51,14 +51,14 @@ def calc_error_rate(name, test_ts, predict):
 
     # # 打印评估指标
     print(f"{name} 预测的评估结果：")
-    # print(f"MSE  (均方误差): {mse:.4f}")
-    # print(f"RMSE (均方根误差): {rmse:.4f}")
-    # print(f"MAE  (平均绝对误差): {mae:.4f}")
-    # print(f"MAPE (平均绝对百分比误差): {mape:.2f}%")
+    print(f"MSE  (均方误差): {mse:.4f}")
+    print(f"RMSE (均方根误差): {rmse:.4f}")
+    print(f"MAE  (平均绝对误差): {mae:.4f}")
+    print(f"MAPE (平均绝对百分比误差): {mape:.2f}%")
     print(f"R²   (决定系数): {r2:.4f}")
     # print(f"训练耗时: {train_time:.4f} 秒")
     # print(f"预测耗时: {pred_time:.6f} 秒")
-    # print(f"MAPE (平均绝对百分比误差): {mape:.4f}")
+    print(f"MAPE (平均绝对百分比误差): {mape:.4f}")
 
 def save_result(prefix, predictions, y_test_actual):
     with open(f"./results/{prefix}_y_test_actual.json", "w") as f:

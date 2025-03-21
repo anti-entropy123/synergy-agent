@@ -39,7 +39,7 @@ var (
 	// 每隔若干个函数请求, 通过channel通知Monitor更新状态.
 	flushCnt       int       = 0
 	flushStChan    chan bool = make(chan bool, 0)
-	flushThreshold           = 64
+	flushThreshold           = 32
 	flushDoneChan  chan bool = make(chan bool, 0)
 
 	// 标记预先分区调整.
@@ -209,7 +209,7 @@ func UpdateNodeStatus() {
 }
 
 func isLongTask(task *Task) bool {
-	return task.Param >= 35
+	return task.Param >= 32
 	// return false
 }
 
@@ -493,9 +493,11 @@ func DispatchTasks(tasks []Task, partition bool, selectBy SelectFunc) {
 					break
 				}
 
-				if len(doDispatch(sendingTasks, partition, selectBy)) > 0 {
-					pendingTasks = append(pendingTasks, task)
+				nextPendingTasks := doDispatch(sendingTasks, partition, selectBy)
+				if len(nextPendingTasks) > 0 {
+					pendingTasks = append(pendingTasks, nextPendingTasks...)
 				}
+
 			} else {
 				current := time.Now()
 				windowIterCnt += 1

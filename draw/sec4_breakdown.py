@@ -194,7 +194,7 @@ axes[1].set_yticks([])
 
 for ax in axes:
     ax.grid(ls="--", color="#D0D0D0", zorder=-2,)
-    ax.set_xscale('log')
+    # ax.set_xscale('log')
 
 plt.subplots_adjust(hspace=0.6, wspace=0.20, top=0.84, bottom=0.2, left=0.15, right=0.95)
 

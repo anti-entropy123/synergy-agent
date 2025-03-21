@@ -26,7 +26,7 @@ wr_ow_trace = np.sort(pd.read_csv(f'./synergy-controller/export/result_OpenWhisk
 wr_sfs_trace = np.sort(pd.read_csv(f'./synergy-controller/export/result_SFS_CDF_{trace}_500_burst/result/agent21_28.csv').iloc[:, -1].values)
 
 
-print(len(hw_sg_trace), len(hw_of_trace), len(hw_ow_trace), len(hw_sfs_trace), len(wr_sg_trace), len(wr_of_trace), len(wr_ow_trace), len(wr_sfs_trace))
+print(len(hw_sg_trace), len(hw_of_trace), len(hw_ow_trace), len(hw_sfs_trace), len(hw_sgf_trace), len(wr_sg_trace), len(wr_of_trace), len(wr_ow_trace), len(wr_sfs_trace), len(wr_sgf_trace))
 
 with open('./synergy-controller/export-500/sec4_burst_archive.csv', 'w') as f:
     f.write('hw_sg, hw_of, hw_ow, hw_sfs, hw_sgf, wr_sg, wr_of, wr_ow, wr_sfs, wr_sgf\n')

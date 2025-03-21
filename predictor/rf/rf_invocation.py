@@ -122,6 +122,22 @@ def compute_peak_ratio(time_series):
 
     return max_val / mean_val
 
+from scipy.stats import skew, kurtosis
+
+def compute_kurtosis_skewness(time_series):
+    """
+    计算时间序列的峰度和偏度
+
+    参数:
+    - time_series: 1D NumPy 数组，表示时序数据
+
+    返回:
+    - kurtosis_value: 峰度值
+    - skewness_value: 偏度值
+    """
+    kurtosis_value = kurtosis(time_series, fisher=False)  # Fisher 参数设为 False 以得到 Pearson 峰度
+    skewness_value = skew(time_series)
+    return kurtosis_value, skewness_value
 
 def comp_input(X: List):
     result = []
@@ -187,7 +203,10 @@ def comp_input(X: List):
         new_x.append(compute_burstiness_index(x))
         new_x.append(compute_peak_ratio(x))
 
-        result.append(new_x)
+        kurtosis, skewness = compute_kurtosis_skewness(x)
+        new_x += [kurtosis, skewness]
+
+        result.append(new_x) 
 
     return result
     # return X
@@ -204,7 +223,8 @@ features_name = [f"x_{-i}" for i in range(-60, 0)] + \
     [f"自相关系数_{i}" for i in range(6)] + [f"偏自相关系数_{i}" for i in range(6)] + \
     [f"fft频率_{i}" for i in range(5)] + \
     [f"fft幅度_{i}" for i in range(5)] + \
-    ["突发指数", "峰值比率"]
+    ["突发指数", "峰值比率"] + \
+    ["峰度", "偏度"]
 
 # features_name = [f"x_{-i}" for i in range(-1440, 0)]
 

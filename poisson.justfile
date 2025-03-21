@@ -46,15 +46,15 @@ sec3_run_SLO_box:
 
 sec4_run_forceadj trace:
     just run_synergy_force '{{trace}}_500_burst' | tee {{export_dir}}/Synergy_force_{{trace}}_500_burst.log | grep 'Average Turn-around Time:'
+    just run_synergy '{{trace}}_500_burst' | tee {{export_dir}}/Synergy_{{trace}}_500_burst.log | grep 'Average Turn-around Time:'
     just run_OpenFaaS '{{trace}}_500_burst' | tee {{export_dir}}/OpenFaaS_{{trace}}_500_burst.log | grep 'Average Turn-around Time:'
     just run_OpenWhisk '{{trace}}_500_burst' | tee {{export_dir}}/OpenWhisk_{{trace}}_500_burst.log | grep 'Average Turn-around Time:'
     just run_SFS '{{trace}}_500_burst' | tee {{export_dir}}/SFS_{{trace}}_500_burst.log | grep 'Average Turn-around Time:'
     
-    just run_synergy '{{trace}}_500_burst' | tee {{export_dir}}/Synergy_{{trace}}_500_burst.log 
-    just -f poisson.justfile wait_ack_htop
-    just comp_turnaround | grep 'Average Turn-around Time:'
-    just export_results 'Synergy_CDF_{{trace}}_500_burst'
-    @echo "run_Synergy_CDF_{{trace}}_500_burst 执行完成。"
+    # just -f poisson.justfile wait_ack_htop
+    # just comp_turnaround | grep 'Average Turn-around Time:'
+    # just export_results 'Synergy_CDF_{{trace}}_500_burst'
+    # @echo "run_Synergy_CDF_{{trace}}_500_burst 执行完成。"
 
 sec4_run_forceadj_hw:
     just -f 'poisson.justfile' sec4_run_forceadj hw
